@@ -1,5 +1,5 @@
 function BoardPage() {
-    return (<></>);
+  return <></>
 }
 
 export default BoardPage

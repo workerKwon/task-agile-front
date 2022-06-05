@@ -1,5 +1,5 @@
 function PageFooter() {
-    return (<></>);
+  return <></>
 }
 
 export default PageFooter

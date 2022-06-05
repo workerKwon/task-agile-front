@@ -1,10 +1,11 @@
-import Logo from "../components/Logo";
+import Logo from '../components/Logo'
 
 function LoginPage() {
-    return (
-        <>
-            <Logo/>
-        </>);
+  return (
+    <>
+      <Logo />
+    </>
+  )
 }
 
 export default LoginPage

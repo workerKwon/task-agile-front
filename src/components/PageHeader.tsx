@@ -1,5 +1,5 @@
 function PageHeader() {
-    return (<></>);
+  return <></>
 }
 
 export default PageHeader

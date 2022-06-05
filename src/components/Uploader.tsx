@@ -1,5 +1,5 @@
 function Uploader() {
-    return (<></>);
+  return <></>
 }
 
 export default Uploader
