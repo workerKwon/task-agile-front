@@ -3,13 +3,48 @@ import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import logo from '../images/logo.png'
+import { useRecoilValue } from 'recoil'
+import { hasBoardsState, personalBoardsState, teamBoardsState, userState } from '../recoil/state'
+
+interface Board {
+  name: string;
+  id: number;
+}
+
+interface Team {
+  name: string;
+  boards: Array<Board>;
+}
 
 function PageHeader() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
+  const hasBoards = useRecoilValue(hasBoardsState)
+  const personalBoards = useRecoilValue(personalBoardsState)
+  const teamBoards = useRecoilValue(teamBoardsState)
+  const user = useRecoilValue(userState)
+
   function goHome() {
     navigate('/home')
+  }
+
+  function openBoard(board: Board) {
+    navigate('/board', { state: { boardId: board.id } })
+  }
+
+  function signOut() {
+    // this.$rt.logout()
+    //
+    // meService
+    //   .signOut()
+    //   .then(() => {
+    //     this.$store.dispatch('logout')
+    //     this.$router.push({ name: 'login' })
+    //   })
+    //   .catch((error) => {
+    //     notify.error(error.message)
+    //   })
   }
 
   return (
@@ -17,7 +52,7 @@ function PageHeader() {
       <div className='page-header d-flex align-content-center'>
         <div className='logo' onClick={goHome}>
           <FontAwesomeIcon icon='home' className='home-icon' />
-          <img src={logo} />
+          <img src={logo} alt='logo' />
         </div>
         <div className='boards-menu-toggle'>
           <div className='dropdown'>
@@ -33,31 +68,41 @@ function PageHeader() {
             </button>
             <div className='dropdown-menu' aria-labelledby='boardsMenu'>
               {!hasBoards && <div className='dropdown-item'>{t('header.boardsMenu.noBoard')}</div>}
-              {hasBoard && (
-                <div>
+              {hasBoards && (
+                <>
                   {personalBoards.length && (
                     <h6 className='dropdown-header'>{t('header.boardsMenu.personalBoards')}</h6>
                   )}
-                  <button
-                    v-for='board in personalBoards'
-                    className='dropdown-item'
-                    type='button'
-                    onClick={openBoard(board)}
-                  >
-                    {board.name}
-                  </button>
-                  <div v-for='team in teamBoards'>
-                    <h6 className='dropdown-header'>{team.name}</h6>
-                    <button
-                      v-for='board in team.boards'
-                      className='dropdown-item'
-                      type='button'
-                      onClick={openBoard(board)}
-                    >
-                      {board.name}
-                    </button>
-                  </div>
-                </div>
+                  {
+                    personalBoards.map((board, index) => (
+                      <button key={index}
+                              className='dropdown-item'
+                              type='button'
+                              onClick={() => openBoard(board)}
+                      >
+                        { board.name }
+                      </button>
+                    ))
+                  }
+                  {
+                    teamBoards.map((team: Team) => (
+                      <>
+                        <h6 className='dropdown-header'>{team.name}</h6>
+                        {
+                          team.boards.map((board: Board, index) => (
+                            <button key={index}
+                                    className='dropdown-item'
+                                    type='button'
+                                    onClick={() => openBoard(board)}
+                            >
+                              {board.name}
+                            </button>
+                          ))
+                        }
+                      </>
+                    ))
+                  }
+                </>
               )}
             </div>
           </div>
@@ -88,7 +133,7 @@ function PageHeader() {
               <button className='dropdown-item' type='button'>
                 {t('header.profile')}
               </button>
-              <button className='dropdown-item' type='button' onClick={signOut()}>
+              <button className='dropdown-item' type='button' onClick={signOut}>
                 {t('header.signOut')}
               </button>
             </div>
