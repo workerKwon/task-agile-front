@@ -3,18 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import logo from '../images/logo.png'
+
 import { useRecoilValue } from 'recoil'
 import { hasBoardsState, personalBoardsState, teamBoardsState, userState } from '../recoil/state'
 
-interface Board {
-  name: string;
-  id: number;
-}
-
-interface Team {
-  name: string;
-  boards: Array<Board>;
-}
 
 function PageHeader() {
   const { t } = useTranslation()
