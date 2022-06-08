@@ -7,10 +7,12 @@ import BoardPage from './pages/BoardPage'
 import RegisterPage from './pages/RegisterPage'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import './App.scss'
 
 library.add(faUserSecret)
 
-function App() {
+const App = () => {
   // const [count, setCount] = useState(0)
 
   return (
