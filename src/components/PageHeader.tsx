@@ -5,7 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logo from '../images/logo.png'
 
 import { useRecoilValue } from 'recoil'
-import { hasBoardsState, personalBoardsState, teamBoardsState, userState } from '../recoil/state'
+import { hasBoardsState, personalBoardsState, teamBoardsState, userState, logout } from '../recoil/state'
+
+import meService from '../services/me/me'
+import notify from '../utils/notify'
 
 
 function PageHeader() {
@@ -28,15 +31,15 @@ function PageHeader() {
   function signOut() {
     // this.$rt.logout()
     //
-    // meService
-    //   .signOut()
-    //   .then(() => {
-    //     this.$store.dispatch('logout')
-    //     this.$router.push({ name: 'login' })
-    //   })
-    //   .catch((error) => {
-    //     notify.error(error.message)
-    //   })
+    meService
+      .signOut()
+      .then(() => {
+        logout()
+        navigate('/login')
+      })
+      .catch((error) => {
+        notify.error(error.message)
+      })
   }
 
   return (

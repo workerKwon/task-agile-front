@@ -1,4 +1,4 @@
-import { atom } from 'recoil'
+import { atom, useResetRecoilState } from 'recoil'
 
 export const hasBoardsState = atom<boolean>({
   key: 'hasBoards',
@@ -17,5 +17,24 @@ export const teamBoardsState = atom<Team[]>({
 
 export const userState = atom<User>({
   key: 'user',
-  default: Object
+  default: {
+    name: null,
+    authenticated: false
+  }
 })
+
+export const boardsState = atom<Board[]>({
+  key: 'boards',
+  default: []
+})
+
+export const teamsState = atom<Team[]>({
+  key: 'teams',
+  default: []
+})
+
+export const logout = () => {
+  useResetRecoilState(boardsState)
+  useResetRecoilState(teamsState)
+  useResetRecoilState(userState)
+}

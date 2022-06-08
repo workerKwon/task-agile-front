@@ -12,6 +12,12 @@ declare global {
   }
 
   interface User {
-    name: string
+    name: string | null
+    authenticated: boolean
+  }
+
+  interface LoginForm {
+    username: string
+    password: string
   }
 }
