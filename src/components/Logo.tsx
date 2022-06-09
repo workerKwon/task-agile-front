@@ -1,4 +1,5 @@
 import logo from '../images/logo.png'
+import './stylesheet/logo.scss'
 
 function Logo() {
   return (

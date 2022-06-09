@@ -4,9 +4,11 @@ declare global {
   interface Board {
     name: string
     id: number
+    description: string
   }
 
   interface Team {
+    id: number
     name: string
     boards: Array<Board>
   }
