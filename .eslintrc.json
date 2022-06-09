@@ -7,6 +7,7 @@
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "prettier"
     ],
@@ -30,7 +31,8 @@
         "spaced-comment": "error",
         "quotes": ["error", "single"],
         "no-duplicate-imports": "error",
-        "no-unused-vars": "error",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": ["error"],
         "comma-dangle": ["error", "never"],
         "semi": ["error", "never", { "beforeStatementContinuationChars": "always"}]
     },
