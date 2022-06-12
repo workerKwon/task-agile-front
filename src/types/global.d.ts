@@ -22,4 +22,22 @@ declare global {
     username: string
     password: string
   }
+
+  interface Member {
+    id: number
+    shortName: string
+  }
+
+  interface CardList {
+    id: number
+    name: string
+    cardForm: Card
+    cards: Card[]
+  }
+
+  interface Card {
+    id: number
+    title: string
+    coverImage: string
+  }
 }
