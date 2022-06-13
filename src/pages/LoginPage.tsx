@@ -6,31 +6,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import './stylesheet/login.scss'
 import notify from '../utils/notify'
 import authenticationService from '../services/authentication/authentication'
+import { useForm } from 'react-hook-form'
+
+interface LoginForm {
+  username: string
+  password: string
+}
 
 function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const [form, setForm] = useState({
-    username: '',
-    password: ''
-  })
+  const { register, handleSubmit, formState: { errors }} = useForm<LoginForm>()
 
   const [errorMessage, setErrorMessage] = useState('')
 
-  const { username, password } = form
-
-  const onChange = (e: { target: { value: string, name: string } }) => {
-    const {value, name} = e.target
-    setForm({
-      ...form,
-      [name]: value
-    })
-  }
-
-  const submitForm = (e: { preventDefault: () => void }) => {
-    e.preventDefault()
-    authenticationService.authenticate(form).then(() => {
+  const submitForm = (data: LoginForm) => {
+    authenticationService.authenticate(data).then(() => {
       navigate('/')
       // TODO
       // this.$bus.$emit('authenticated')
@@ -46,7 +38,7 @@ function LoginPage() {
       <div className="row justify-content-center">
         <div className="form">
           <Logo />
-          <form onSubmit={submitForm}>
+          <form onSubmit={handleSubmit(submitForm)}>
             {
               errorMessage &&
               <div className="alert alert-danger failed">
@@ -56,46 +48,32 @@ function LoginPage() {
           <div className="form-group">
             <label htmlFor="username">{ t('loginPage.form.username.label') }</label>
             <input
+              {...register('username', { required: true })}
               id="username"
-              name="username"
-              onChange={onChange}
-              value={username}
               type="text"
               className="form-control"
             />
-              <div
-                // v-if="$v.form.username.$dirty"
-                className="field-error"
-              >
-                <div
-                  // v-if="!$v.form.username.required"
-                  className="error"
-                >
+            {errors.username &&
+              <div className="field-error">
+                <div className="error-block">
                   { t('loginPage.form.username.required') }
                 </div>
-              </div>
+              </div>}
           </div>
           <div className="form-group">
             <label htmlFor="password">{ t('loginPage.form.password.label') }</label>
             <input
+              {...register('password', { required: true })}
               id="password"
-              name="password"
-              value={password}
-              onChange={onChange}
               type="password"
               className="form-control"
             />
-              <div
-                // v-if="$v.form.password.$dirty"
-                className="field-error"
-              >
-                <div
-                  // v-if="$v.form.password.required"
-                  className="error"
-                >
+            {errors.password &&
+              <div className="field-error">
+                <div className="error-block">
                   { t('loginPage.form.password.required') }
                 </div>
-              </div>
+              </div>}
           </div>
           <button
             type="submit"

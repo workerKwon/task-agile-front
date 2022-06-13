@@ -18,11 +18,6 @@ declare global {
     authenticated: boolean
   }
 
-  interface LoginForm {
-    username: string
-    password: string
-  }
-
   interface Member {
     id: number
     shortName: string
