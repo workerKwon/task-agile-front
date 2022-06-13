@@ -5,6 +5,7 @@ declare global {
     name: string
     id: number
     description: string
+    personal: boolean
   }
 
   interface Team {
@@ -20,6 +21,8 @@ declare global {
 
   interface Member {
     id: number
+    userId: number
+    name: string
     shortName: string
   }
 
@@ -28,11 +31,15 @@ declare global {
     name: string
     cardForm: Card
     cards: Card[]
+    position: number
   }
 
   interface Card {
     id: number
     title: string
+    boardId: string
+    cardListId: number
     coverImage: string
+    position: number
   }
 }

@@ -2,40 +2,169 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PageHeader from '../components/PageHeader'
 import AddMemberModal from '../modals/AddMemberModal'
 import CardModal from '../modals/CardModal'
-import { FormEvent, KeyboardEvent, useState } from 'react'
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import { ReactSortable } from 'react-sortablejs'
-import { useRecoilState } from 'recoil'
-import { cardListsState, membersState } from '../recoil/state'
+import cardService from '../services/card/card'
+import $ from 'jquery'
+import notify from '../utils/notify'
+import './stylesheet/board.scss'
+import { useNavigate, useParams } from 'react-router-dom'
+import boardService from '../services/board/board'
+
+type AddedCardList = {
+  id: number
+  name: string
+  cards: {id: number, title: string, coverImage: string}[]
+  cardForm: { open: boolean, title: string }
+}
 
 const BoardPage = () => {
-  const [board] = useState({ id: 0, name: '', personal: false, description: '' })
+  const [board] = useState({ id: 0, name: '', personal: false })
   const [team] = useState({ name: '' })
+  const [members] = useState<{id: number, name: string, shortName: string}[]>([])
+  const [cardLists] = useState<AddedCardList[]>([])
+  const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
 
-  const [members] = useRecoilState(membersState)
+  const focusedCardList = useMemo(() => {
+    return cardLists.filter(cardList => cardList.id === openedCard.cardListId)[0] || {}
+  }, [])
 
-  const [cardLists] = useRecoilState(cardListsState)
+  const navigate = useNavigate()
 
-  const openedCard = useState<Card>({
-    id: 0,
-    title: '',
-    coverImage: ''
-  })[0]
+  const { cardId, boardId } = useParams()
 
-  const [focusedCardList] = useState<CardList>({ cardForm: { id: 0, title: '', coverImage:''}, cards: [], id: 0, name: '' })
+  useEffect(() => {
+    console.log('[BoardPage] mounted')
+    loadInitial()
+    window.addEventListener('click', dismissActiveForms)
+    $('#cardModal').on('hide.bs.modal', () => {
+      navigate('/board', { state: { boardId: board.id }})
+    })
+  }, [])
 
-  const addCard = (cardList: CardList) => {
-    cardList
+  const loadInitial = () => {
+    if(cardId) {
+      console.log('[BoardPage] Opened with card URL')
+      loadCard(cardId).then((card: Card) => {
+        return loadBoard(card.boardId)
+      }).then(() => {
+        openCardWindow()
+      })
+    } else {
+      console.log('[BoardPage] Opened with board URL')
+      loadBoard(boardId)
+    }
   }
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>, cardList: CardList) => {
+  const loadBoard = (boardId: string | undefined) => {
+    return new Promise<void>(resolve => {
+      boardService.getBoard(boardId).then((data: { team: Team; board: Board; members: Member[]; cardLists: CardList[] }) => {
+        team.name = data.team ? data.team.name : ''
+        board.id = data.board.id
+        board.personal = data.board.personal
+        board.name = data.board.name
+
+        members.splice(0)
+
+        data.members.forEach(member => {
+          members.push({
+            id: member.userId,
+            name: member.name,
+            shortName: member.shortName
+          })
+        })
+
+        cardLists.splice(0)
+
+        data.cardLists.sort((list1: CardList, list2: CardList) => {
+          return list1.position - list2.position
+        })
+
+        data.cardLists.forEach((cardList: CardList) => {
+          cardList.cards.sort((card1, card2) => {
+            return card1.position - card2.position
+          })
+
+          cardLists.push({
+            id: cardList.id,
+            name: cardList.name,
+            cards: cardList.cards,
+            cardForm: {
+              open: false,
+              title: ''
+            }
+          })
+        })
+        // TODO
+        //  this.subscribeToRealTimeUpdate(data.board.id)
+        resolve()
+      }).catch((error: { message: string }) => {
+        notify.error(error.message)
+      })
+    })
+  }
+
+  const loadCard = (cardId: string | undefined) => {
+    return new Promise<Card>(resolve => {
+      cardService.getCard(cardId).then((card: Card) => {
+        setOpenedCard(card)
+        resolve(card)
+      }).catch(error => {
+        notify.error(error.message)
+      })
+    })
+  }
+
+  const openCardWindow = () => {
+    $('#cardModal').modal('show')
+  }
+
+  const addCard = (cardList: AddedCardList) => {
+    if(!cardList.cardForm.title.trim()) return
+
+    const card = {
+      boardId: board.id,
+      cardListId: cardList.id,
+      title: cardList.cardForm.title,
+      position: cardList.cards.length + 1
+    }
+    cardService.add(card)
+      .then(savedCard => {
+        appendCardToList(cardList, savedCard)
+        cardList.cardForm.title = ''
+        focusCardForm(cardList)
+      })
+      .catch((error) => {
+        notify.error(error.message)
+      })
+  }
+
+  const appendCardToList = (cardList: AddedCardList, card: Card) => {
+    const existingIndex = cardList.cards.findIndex(existingCard => existingCard.id === card.id)
+    if(existingIndex === -1) {
+      cardList.cards.push({
+        id: card.id,
+        title: card.title,
+        coverImage: ''
+      })
+    }
+  }
+
+  const focusCardForm = (cardList: AddedCardList) => {
+    // this.$nexTick(() => {
+    $('#cardTitle' + cardList.id).trigger('focus')
+    // })
+  }
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>, cardList: AddedCardList) => {
     e.preventDefault()
     addCard(cardList)
   }
 
-  const onKeyDownEnter = (e: KeyboardEvent<HTMLTextAreaElement>, cardList: CardList) => {
+  const onKeyDownEnter = (e: KeyboardEvent<HTMLTextAreaElement>, cardList: AddedCardList) => {
     e.preventDefault()
     if(e.key === 'enter') {
-      cardList
+      addCard(cardList)
     }
   }
 
@@ -59,11 +188,11 @@ const BoardPage = () => {
     openCard(1)
   }
 
-  const openAddCardForm = (cardList: CardList) => {
+  const openAddCardForm = (cardList: AddedCardList) => {
     openCard(cardList)
   }
 
-  const closeAddCardForm = (cardList: CardList) => {
+  const closeAddCardForm = (cardList: AddedCardList) => {
     openCard(cardList)
   }
 
@@ -80,6 +209,10 @@ const BoardPage = () => {
   }
 
   const updateCardCoverImage = () => {
+    openCard(1)
+  }
+
+  const dismissActiveForms = () => {
     openCard(1)
   }
 
@@ -180,14 +313,14 @@ const BoardPage = () => {
                               onSubmit={(e) => onSubmit(e, cardList)}
                             >
                               <div className="form-group">
-                            <textarea
-                              id={'cardTitle' + cardList.id}
-                              value={cardList.cardForm.title}
-                              className="form-control"
-                              placeholder="Type card title here"
-                              onKeyDown={(e) => onKeyDownEnter(e, cardList)}
-                              /* TODO : @keydown.enter.prevent=addCard(cardList) */
-                            />
+                                <textarea
+                                  id={'cardTitle' + cardList.id}
+                                  value={cardList.cardForm.title}
+                                  className="form-control"
+                                  placeholder="Type card title here"
+                                  onKeyDown={(e) => onKeyDownEnter(e, cardList)}
+                                  /* TODO : @keydown.enter.prevent=addCard(cardList) */
+                                />
                               </div>
                               <button
                                 type="submit"

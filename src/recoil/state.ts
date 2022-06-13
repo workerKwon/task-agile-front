@@ -33,16 +33,6 @@ export const teamsState = atom<Team[]>({
   default: []
 })
 
-export const membersState = atom<Member[]>({
-  key: 'members',
-  default: []
-})
-
-export const cardListsState = atom<CardList[]>({
-  key: 'cardLists',
-  default: []
-})
-
 export const logout = () => {
   useResetRecoilState(boardsState)
   useResetRecoilState(teamsState)
