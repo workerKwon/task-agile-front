@@ -8,12 +8,12 @@ import { useRecoilState } from 'recoil'
 import { cardListsState, membersState } from '../recoil/state'
 
 const BoardPage = () => {
-  const [board, setBoard] = useState({ id: 0, name: '', personal: false, description: '' })
-  const [team, setTeam] = useState({ name: '' })
+  const [board] = useState({ id: 0, name: '', personal: false, description: '' })
+  const [team] = useState({ name: '' })
 
-  const [members, setMembers] = useRecoilState(membersState)
+  const [members] = useRecoilState(membersState)
 
-  const [cardLists, setCardLists] = useRecoilState(cardListsState)
+  const [cardLists] = useRecoilState(cardListsState)
 
   const openedCard = useState<Card>({
     id: 0,
@@ -21,37 +21,67 @@ const BoardPage = () => {
     coverImage: ''
   })[0]
 
-  const focusedCardList = useState<CardList>([])[0]
+  const [focusedCardList] = useState<CardList>({ cardForm: { id: 0, title: '', coverImage:''}, cards: [], id: 0, name: '' })
 
-  const addCard = (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLTextAreaElement>, cardList: CardList) => {
+  const addCard = (cardList: CardList) => {
+    cardList
+  }
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>, cardList: CardList) => {
     e.preventDefault()
-    if(e.key === 'enter'){
+    addCard(cardList)
+  }
+
+  const onKeyDownEnter = (e: KeyboardEvent<HTMLTextAreaElement>, cardList: CardList) => {
+    e.preventDefault()
+    if(e.key === 'enter') {
+      cardList
     }
   }
 
-  const openCard = (card: any) => {}
+  const openCard = (card: any) => {
+    card
+  }
 
   const addCardList = (e: { preventEvent: () => string }) => {
     e.preventEvent()
   }
 
-  const openAddMember = () => {}
+  const openAddMember = () => {
+    openCard(1)
+  }
 
-  const onCardListDragEnded = () => {}
+  const onCardListDragEnded = () => {
+    openCard(1)
+  }
 
-  const onCardDragEnded = () => {}
+  const onCardDragEnded = () => {
+    openCard(1)
+  }
 
-  const openAddCardForm = (cardList: CardList) => {}
+  const openAddCardForm = (cardList: CardList) => {
+    openCard(cardList)
+  }
 
-  const closeAddCardForm = (cardList: CardList) => {}
+  const closeAddCardForm = (cardList: CardList) => {
+    openCard(cardList)
+  }
 
-  const openAddListForm = () => {}
+  const openAddListForm = () => {
+    openCard(1)
+  }
 
-  const closeAddListForm = () => {}
+  const closeAddListForm = () => {
+    openCard(1)
+  }
 
-  const onMemberAdded = () => {}
+  const onMemberAdded = () => {
+    openCard(1)
+  }
 
-  const updateCardCoverImage = () => {}
+  const updateCardCoverImage = () => {
+    openCard(1)
+  }
 
   return (
     <div
@@ -147,7 +177,7 @@ const BoardPage = () => {
                           >
                             <form
                               className="add-card-form"
-                              onSubmit={(e) => addCard(e, cardList)}
+                              onSubmit={(e) => onSubmit(e, cardList)}
                             >
                               <div className="form-group">
                             <textarea
@@ -155,7 +185,7 @@ const BoardPage = () => {
                               value={cardList.cardForm.title}
                               className="form-control"
                               placeholder="Type card title here"
-                              onKeyDown={(e) => addCard(e, cardList)}
+                              onKeyDown={(e) => onKeyDownEnter(e, cardList)}
                               /* TODO : @keydown.enter.prevent=addCard(cardList) */
                             />
                               </div>
