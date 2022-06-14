@@ -34,7 +34,9 @@
         "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": ["error"],
         "comma-dangle": ["error", "never"],
-        "semi": ["error", "never", { "beforeStatementContinuationChars": "always"}]
+        "semi": ["error", "never", { "beforeStatementContinuationChars": "always"}],
+        "indent": ["error", 2],
+        "object-curly-spacing": ["error", "always"]
     },
     "settings": {
         "import/resolver": {
