@@ -5,11 +5,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logo from '../images/logo.png'
 
 import { useRecoilValue } from 'recoil'
-import { hasBoardsState, personalBoardsState, teamBoardsState, userState, logout } from '../recoil/state'
+import {
+  hasBoardsState,
+  personalBoardsState,
+  teamBoardsState,
+  userState,
+  logout
+} from '../recoil/state'
 
 import meService from '../services/me/me'
 import notify from '../utils/notify'
-
 
 function PageHeader() {
   const { t } = useTranslation()
@@ -68,35 +73,31 @@ function PageHeader() {
                   {personalBoards.length && (
                     <h6 className='dropdown-header'>{t('header.boardsMenu.personalBoards')}</h6>
                   )}
-                  {
-                    personalBoards.map((board, index) => (
-                      <button key={index}
-                              className='dropdown-item'
-                              type='button'
-                              onClick={() => openBoard(board)}
-                      >
-                        { board.name }
-                      </button>
-                    ))
-                  }
-                  {
-                    teamBoards.map((team: Team) => (
-                      <>
-                        <h6 className='dropdown-header'>{team.name}</h6>
-                        {
-                          team.boards.map((board: Board, index) => (
-                            <button key={index}
-                                    className='dropdown-item'
-                                    type='button'
-                                    onClick={() => openBoard(board)}
-                            >
-                              {board.name}
-                            </button>
-                          ))
-                        }
-                      </>
-                    ))
-                  }
+                  {personalBoards.map((board, index) => (
+                    <button
+                      key={index}
+                      className='dropdown-item'
+                      type='button'
+                      onClick={() => openBoard(board)}
+                    >
+                      {board.name}
+                    </button>
+                  ))}
+                  {teamBoards.map((team: Team) => (
+                    <>
+                      <h6 className='dropdown-header'>{team.name}</h6>
+                      {team.boards.map((board: Board, index) => (
+                        <button
+                          key={index}
+                          className='dropdown-item'
+                          type='button'
+                          onClick={() => openBoard(board)}
+                        >
+                          {board.name}
+                        </button>
+                      ))}
+                    </>
+                  ))}
                 </>
               )}
             </div>
