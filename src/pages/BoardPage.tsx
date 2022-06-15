@@ -2,14 +2,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PageHeader from '../components/PageHeader'
 import AddMemberModal from '../modals/AddMemberModal'
 import CardModal from '../modals/CardModal'
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react'
+import {FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useMemo, useState} from 'react'
 import { ReactSortable } from 'react-sortablejs'
 import cardService from '../services/card/card'
 import $ from 'jquery'
 import notify from '../utils/notify'
 import './stylesheet/board.scss'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import boardService from '../services/board/board'
+import cardListService from '../services/cardList/card-lists'
 
 type AddedCardList = {
   id: number
@@ -31,6 +32,7 @@ const BoardPage = () => {
   }, [])
 
   const navigate = useNavigate()
+  const location = useLocation()
 
   const { cardId, boardId } = useParams()
 
@@ -162,7 +164,9 @@ const BoardPage = () => {
 
   const focusCardForm = (cardList: AddedCardList) => {
     // this.$nexTick(() => {
-    $('#cardTitle' + cardList.id).trigger('focus')
+    // useLayoutEffect(() => {
+      $('#cardTitle' + cardList.id).trigger('focus')
+    // })
     // })
   }
 
@@ -179,15 +183,42 @@ const BoardPage = () => {
   }
 
   const openCard = (card: any) => {
-    card
+    const cardTitle = card.title.toLowerCase().trim().replace(/\s/g, '-')
+    navigate('/card', {state:{ cardId: card.id, cardTitle}})
   }
 
-  const addCardList = (e: { preventEvent: () => string }) => {
-    e.preventEvent()
+  const addCardList = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if(!addListForm.name) {
+      return
+    }
+
+    const cardList = {
+      boardId: board.id,
+      name: addListForm.name,
+      position: cardLists.length + 1
+    }
+
+    cardListService.add(cardList)
+        .then(savedCardList => {
+          cardLists.push({
+            id: savedCardList.id,
+            name: savedCardList.name,
+            cards: [],
+            cardForm: {
+              open: false,
+              title: ''
+            }
+          })
+          closeAddListForm()
+        })
+        .catch(error => {
+          notify.error(error.message)
+        })
   }
 
   const openAddMember = () => {
-    openCard(1)
+    $('#addMemberModal').modal('show')
   }
 
   const onCardListDragEnded = () => {
@@ -199,27 +230,42 @@ const BoardPage = () => {
   }
 
   const openAddCardForm = (cardList: AddedCardList) => {
-    openCard(cardList)
+    cardLists.forEach(cardList => {cardList.cardForm.open = false})
+    cardList.cardForm.open = true
+    focusCardForm(cardList)
   }
 
   const closeAddCardForm = (cardList: AddedCardList) => {
-    openCard(cardList)
+    cardList.cardForm.open = false
   }
 
   const openAddListForm = () => {
-    openCard(1)
+    addListForm.open = true
+    //TODO
+    // this.$nextTick(() => {
+      $('#cardListName').trigger('focus')
+    // })
   }
 
   const closeAddListForm = () => {
-    openCard(1)
+    addListForm.open = false
+    addListForm.name = ''
   }
 
-  const onMemberAdded = () => {
-    openCard(1)
+  const onMemberAdded = (member: { id: number; name: string; shortName: string }) => {
+    members.push(member)
   }
 
-  const updateCardCoverImage = () => {
-    openCard(1)
+  const updateCardCoverImage = (coverImageCard: { cardListId: number; cardId: number; coverImage: string }) => {
+    const cardList = cardLists.find(cardList => {
+      return cardList.id === coverImageCard.cardListId
+    })
+
+    const card = cardList?.cards.find(card => {
+      return card.id === coverImageCard.cardId
+    })
+
+    if(card !== undefined) card.coverImage = coverImageCard.coverImage
   }
 
   const dismissActiveForms = () => {
@@ -344,7 +390,7 @@ const BoardPage = () => {
                         </div>
                       )}
                       {addListForm.open && (
-                        <form className='add-list-form' onSubmit={() => addCardList}>
+                        <form className='add-list-form' onSubmit={(e) => addCardList(e)}>
                           <div className='form-group'>
                             <input
                               id='cardListName'
@@ -381,7 +427,7 @@ const BoardPage = () => {
             cardList={focusedCardList}
             board={board}
             members={members}
-            onCoverImageChanged={updateCardCoverImage}
+            onCoverImageChanged={() => updateCardCoverImage}
           />
         </div>
       )}
