@@ -2,13 +2,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PageHeader from '../components/PageHeader'
 import AddMemberModal from '../modals/AddMemberModal'
 import CardModal from '../modals/CardModal'
-import {FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useMemo, useState} from 'react'
-import { ReactSortable } from 'react-sortablejs'
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react'
+import { ReactSortable, SortableEvent } from 'react-sortablejs'
 import cardService from '../services/card/card'
 import $ from 'jquery'
 import notify from '../utils/notify'
 import './stylesheet/board.scss'
-import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import boardService from '../services/board/board'
 import cardListService from '../services/cardList/card-lists'
 
@@ -32,14 +32,13 @@ const BoardPage = () => {
   }, [])
 
   const navigate = useNavigate()
-  const location = useLocation()
 
   const { cardId, boardId } = useParams()
 
   useEffect(() => {
     console.log('[BoardPage] mounted')
     loadInitial()
-    window.addEventListener('click', dismissActiveForms)
+    window.addEventListener('click', (e) => dismissActiveForms(e))
     $('#cardModal').on('hide.bs.modal', () => {
       navigate('/board', { state: { boardId: board.id } })
     })
@@ -165,7 +164,7 @@ const BoardPage = () => {
   const focusCardForm = (cardList: AddedCardList) => {
     // this.$nexTick(() => {
     // useLayoutEffect(() => {
-      $('#cardTitle' + cardList.id).trigger('focus')
+    $('#cardTitle' + cardList.id).trigger('focus')
     // })
     // })
   }
@@ -184,12 +183,12 @@ const BoardPage = () => {
 
   const openCard = (card: any) => {
     const cardTitle = card.title.toLowerCase().trim().replace(/\s/g, '-')
-    navigate('/card', {state:{ cardId: card.id, cardTitle}})
+    navigate('/card', { state: { cardId: card.id, cardTitle } })
   }
 
   const addCardList = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if(!addListForm.name) {
+    if (!addListForm.name) {
       return
     }
 
@@ -200,33 +199,73 @@ const BoardPage = () => {
     }
 
     cardListService.add(cardList)
-        .then(savedCardList => {
-          cardLists.push({
-            id: savedCardList.id,
-            name: savedCardList.name,
-            cards: [],
-            cardForm: {
-              open: false,
-              title: ''
-            }
-          })
-          closeAddListForm()
+      .then(savedCardList => {
+        cardLists.push({
+          id: savedCardList.id,
+          name: savedCardList.name,
+          cards: [],
+          cardForm: {
+            open: false,
+            title: ''
+          }
         })
-        .catch(error => {
-          notify.error(error.message)
-        })
+        closeAddListForm()
+      })
+      .catch(error => {
+        notify.error(error.message)
+      })
   }
 
   const openAddMember = () => {
     $('#addMemberModal').modal('show')
   }
 
-  const onCardListDragEnded = () => {
-    openCard(1)
+  const onCardListDragEnded = (event: SortableEvent) => {
+    console.log('[BoardPage] Card list drag ended', event)
+    // Get the latest card list order and send it to the back-end
+    const positionChanges: {boardId: number, cardListPositions: {cardListId: number, position: number}[]} = {
+      boardId: board.id,
+      cardListPositions: []
+    }
+    cardLists.forEach((cardList, index) => {
+      positionChanges.cardListPositions.push({
+        cardListId: cardList.id,
+        position: index + 1
+      })
+    })
+    cardListService.changePositions(positionChanges)
+      .catch(error => {
+        notify.error(error.message)
+      })
   }
 
-  const onCardDragEnded = () => {
-    openCard(1)
+  const onCardDragEnded = (event: SortableEvent) => {
+    console.log('card drag ended', event)
+    // Get the card list that have card orders changed
+    const fromListId = event.from.dataset.listId
+    const toListId = event.to.dataset.listId
+    const changedListIds = [fromListId]
+    if (fromListId !== toListId) {
+      changedListIds.push(toListId)
+    }
+    const positionChanges: {boardId: number, cardPositions: {cardListId: string | undefined, cardId: number, position: number}[]} = {
+      boardId: board.id,
+      cardPositions: []
+    }
+    changedListIds.forEach((cardListId ) => {
+      const cardList = cardLists.filter(cardList => { return typeof cardListId === 'string' && cardList.id === parseInt(cardListId) })[0]
+      cardList.cards.forEach((card, index) => {
+        positionChanges.cardPositions.push({
+          cardListId: cardListId,
+          cardId: card.id,
+          position: index + 1
+        })
+      })
+    })
+    cardService.changePositions(positionChanges)
+      .catch(error => {
+        notify.error(error.message)
+      })
   }
 
   const openAddCardForm = (cardList: AddedCardList) => {
@@ -241,9 +280,9 @@ const BoardPage = () => {
 
   const openAddListForm = () => {
     addListForm.open = true
-    //TODO
+    // TODO
     // this.$nextTick(() => {
-      $('#cardListName').trigger('focus')
+    $('#cardListName').trigger('focus')
     // })
   }
 
@@ -268,8 +307,26 @@ const BoardPage = () => {
     if(card !== undefined) card.coverImage = coverImageCard.coverImage
   }
 
-  const dismissActiveForms = () => {
-    openCard(1)
+  const dismissActiveForms = (event: MouseEvent) => {
+    console.log('[BoardPage] Dismissing forms')
+    let dismissAddCardForm = true
+    let dismissAddListForm = true
+
+    // TODO : 안되면 변경
+    if(!(event.target instanceof Element)) return
+
+    if (event.target.closest('.add-card-form') || event.target.closest('.add-card-button')) {
+      dismissAddCardForm = false
+    }
+    if (event.target.closest('.add-list-form') || event.target.closest('.add-list-button')) {
+      dismissAddListForm = false
+    }
+    if (dismissAddCardForm) {
+      cardLists.forEach((cardList) => { cardList.cardForm.open = false })
+    }
+    if (dismissAddListForm) {
+      addListForm.open = false
+    }
   }
 
   return (
@@ -310,7 +367,7 @@ const BoardPage = () => {
                     animation={0}
                     scrollSensitivity={100}
                     touchStartThreshold={20}
-                    onEnd={onCardListDragEnded}
+                    onEnd={(e) => onCardListDragEnded(e)}
                   >
                     {cardLists.map((cardList) => (
                       <div key={cardList.id} className='list-wrapper'>
@@ -326,7 +383,7 @@ const BoardPage = () => {
                             scrollSensitivity={100}
                             touchStartThreshold={20}
                             // dataListId={cardList.id}
-                            onEnd={onCardDragEnded}
+                            onEnd={(e) => onCardDragEnded(e)}
                           >
                             {cardList.cards.map((card) => (
                               <div

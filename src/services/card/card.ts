@@ -11,7 +11,7 @@ export default {
   add(card: AddCard) {
     return new Promise<Card>((resolve, reject) => {
       api.post('/cards', card)
-        .then(({data}) => {
+        .then(({ data }) => {
           resolve(data)
         })
         .catch((error) => {
@@ -26,6 +26,17 @@ export default {
       }).catch(error => {
         reject(error)
       })
+    })
+  },
+  changePositions(positionChanges: {boardId: number, cardPositions: {cardListId: string | undefined, cardId: number, position: number}[]}) {
+    return new Promise<Card>((resolve, reject) => {
+      api.post('/cards/positions', positionChanges)
+        .then(({ data }) => {
+          resolve(data)
+        })
+        .catch((error) => {
+          reject(error)
+        })
     })
   }
 }
