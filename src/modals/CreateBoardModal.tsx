@@ -58,38 +58,30 @@ const CreateBoardModal = (props: { onCreated: (number: number) => void; teamId: 
                 }
                 <div className='form-group'>
                   <input
-                    {...register('name', { required: true })}
+                    {...register('name', { required: { value: true, message: 'Name is required' } })}
                     id='boardNameInput'
                     type='text'
                     className='form-control'
                     placeholder='Board name'
                     maxLength={128}
                   />
-                  {
-                    errors.name &&
-                    <div className='field-error'>
-                      <div className='error-block'>
-                        Name is required
-                      </div>
+                  <div className='field-error'>
+                    <div className='error-block'>
+                      {errors.name?.message}
                     </div>
-                  }
-
+                  </div>
                 </div>
                 <div className='form-group'>
                   <textarea
-                    {...register('description', { required: true })}
+                    {...register('description', { required: { value: true, message: 'Description is required' } })}
                     className='form-control'
                     placeholder='Add board description here'
                   />
-                  {
-                    errors.description &&
-                    <div className='field-error'>
-                      <div className='error-block'>
-                        Description is required
-                      </div>
+                  <div className='field-error'>
+                    <div className='error-block'>
+                      {errors.description?.message}
                     </div>
-                  }
-
+                  </div>
                 </div>
               </div>
               <div className='modal-footer'>

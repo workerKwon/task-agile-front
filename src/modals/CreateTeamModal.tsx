@@ -57,20 +57,18 @@ function CreateTeamModal() {
                 {errorMessage && <div className='alert alert-danger failed'>{errorMessage}</div>}
                 <div className='form-group'>
                   <input
-                    {...register('name',{ required: true })}
+                    {...register('name',{ required: { value: true, message: 'Name is required' } })}
                     id='teamNameInput'
                     type='text'
                     className='form-control'
                     placeholder='Team name'
                     maxLength={128}
                   />
-                  { errors.name && (
-                    <div className='field-error'>
-                      <div className='error-block'>
-                        Name is required
-                      </div>
+                  <div className='field-error'>
+                    <div className='error-block'>
+                      {errors.name?.message}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
               <div className='modal-footer'>

@@ -50,30 +50,28 @@ function LoginPage() {
               <div className='form-group'>
                 <label htmlFor='username'>{t('loginPage.form.username.label')}</label>
                 <input
-                  {...register('username', { required: true })}
+                  {...register('username',
+                    { required: { value: true, message: t('loginPage.form.username.required') } })}
                   id='username'
                   type='text'
                   className='form-control'
                 />
-                {errors.username && (
-                  <div className='field-error'>
-                    <div className='error-block'>{t('loginPage.form.username.required')}</div>
-                  </div>
-                )}
+                <div className='field-error'>
+                  <div className='error-block'>{errors.username?.message}</div>
+                </div>
               </div>
               <div className='form-group'>
                 <label htmlFor='password'>{t('loginPage.form.password.label')}</label>
                 <input
-                  {...register('password', { required: true })}
+                  {...register('password',
+                    { required: { value: true, message:t('loginPage.form.password.required') } })}
                   id='password'
                   type='password'
                   className='form-control'
                 />
-                {errors.password && (
-                  <div className='field-error'>
-                    <div className='error-block'>{t('loginPage.form.password.required')}</div>
-                  </div>
-                )}
+                <div className='field-error'>
+                  <div className='error-block'>{errors.password?.message}</div>
+                </div>
               </div>
               <button type='submit' className='btn btn-primary btn-block'>
                 {t('loginPage.form.submit')}
