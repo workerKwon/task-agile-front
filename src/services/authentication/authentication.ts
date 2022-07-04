@@ -1,5 +1,10 @@
 import api from '../../axios/api'
 
+interface LoginForm {
+  username: string
+  password: string
+}
+
 export default {
   authenticate(detail: LoginForm) {
     return new Promise((resolve, reject) => {
