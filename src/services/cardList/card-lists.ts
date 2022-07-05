@@ -1,9 +1,9 @@
-import api from '../../axios/api'
+import axios from 'axios'
 
 export default {
   add(cardList: {boardId: number, name: string, position: number}) {
     return new Promise<CardList>((resolve, reject) => {
-      api.post('/card-lists', cardList)
+      axios.post('/card-lists', cardList)
         .then(({ data }) => {
           resolve(data)
         })
@@ -14,7 +14,7 @@ export default {
   },
   changePositions(positionChanges: {boardId: number, cardListPositions: {cardListId: number, position: number}[]}) {
     return new Promise<CardList>((resolve, reject) => {
-      api.post('/card-lists/positions', positionChanges)
+      axios.post('/card-lists/positions', positionChanges)
         .then(({ data }) => {
           resolve(data)
         })

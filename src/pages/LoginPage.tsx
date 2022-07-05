@@ -7,6 +7,7 @@ import './stylesheet/login.scss'
 import notify from '../utils/notify'
 import authenticationService from '../services/authentication/authentication'
 import { useForm } from 'react-hook-form'
+import bus from '../event-bus'
 
 interface LoginForm {
   username: string
@@ -26,12 +27,11 @@ function LoginPage() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const submitForm = (data: LoginForm) => {
-    authenticationService
-      .authenticate(data)
+    authenticationService.authenticate(data)
       .then(() => {
         navigate('/')
         // TODO
-        // this.$bus.$emit('authenticated')
+        bus.emit('authenticated')
         notify.closeAll()
       })
       .catch((error: { message: string }) => {

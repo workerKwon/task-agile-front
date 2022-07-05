@@ -1,5 +1,5 @@
-import api from '../../axios/api'
 import errorParser from '../../utils/error-parser'
+import axios from 'axios'
 
 type MyData = {
   user: { name: string, authenticated: boolean},
@@ -10,7 +10,7 @@ type MyData = {
 export default {
   signOut () {
     return new Promise((resolve, reject) => {
-      api.post('/me/logout')
+      axios.post('/me/logout')
         .then((data) => {
           resolve(data)
         })
@@ -21,7 +21,7 @@ export default {
   },
   getMyData () {
     return new Promise<MyData>((resolve, reject) => {
-      api.get('/me')
+      axios.get('/me')
         .then(({ data }) => {
           resolve(data)
         })

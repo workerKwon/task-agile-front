@@ -1,4 +1,4 @@
-import api from '../../axios/api'
+import axios from 'axios'
 
 type SavedBoard = {
   teamId: number
@@ -16,8 +16,8 @@ type GetBoard = {
 export default {
   create(board: SavedBoard) {
     return new Promise<Board>((resolve, reject) => {
-      api.post('/boards', board)
-        .then(({data}) => {
+      axios.post('/boards', board)
+        .then(({ data }) => {
           resolve(data)
         })
         .catch((error) => {
@@ -27,7 +27,7 @@ export default {
   },
   getBoard(boardId: string | undefined) {
     return new Promise<GetBoard>((resolve, reject) => {
-      api.get('/boards/' + boardId).then(({ data }) => {
+      axios.get('/boards/' + boardId).then(({ data }) => {
         resolve(data)
       }).catch((error) => {
         reject(error)

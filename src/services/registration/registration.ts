@@ -1,4 +1,4 @@
-import api from '../../axios/api'
+import axios from 'axios'
 
 interface RegisterForm {
   username: string
@@ -11,7 +11,7 @@ interface RegisterForm {
 export default {
   register(form: RegisterForm) {
     return new Promise((resolve, reject) => {
-      api.post('/registrations', form)
+      axios.post('/registrations', form)
         .then(({ data }) => {
           resolve(data)
         })

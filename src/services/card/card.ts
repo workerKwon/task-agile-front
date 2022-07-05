@@ -1,4 +1,4 @@
-import api from '../../axios/api'
+import axios from 'axios'
 
 type AddCard = {
   boardId: number
@@ -10,7 +10,7 @@ type AddCard = {
 export default {
   add(card: AddCard) {
     return new Promise<Card>((resolve, reject) => {
-      api.post('/cards', card)
+      axios.post('/cards', card)
         .then(({ data }) => {
           resolve(data)
         })
@@ -21,7 +21,7 @@ export default {
   },
   getCard(cardId: string | undefined) {
     return new Promise<Card>((resolve, reject) => {
-      api.get('/cards/' + cardId).then(({ data }) => {
+      axios.get('/cards/' + cardId).then(({ data }) => {
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -30,7 +30,7 @@ export default {
   },
   changePositions(positionChanges: {boardId: number, cardPositions: {cardListId: string | undefined, cardId: number, position: number}[]}) {
     return new Promise<Card>((resolve, reject) => {
-      api.post('/cards/positions', positionChanges)
+      axios.post('/cards/positions', positionChanges)
         .then(({ data }) => {
           resolve(data)
         })

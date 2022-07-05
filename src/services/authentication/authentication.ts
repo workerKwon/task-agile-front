@@ -1,4 +1,4 @@
-import api from '../../axios/api'
+import axios from 'axios'
 
 interface LoginForm {
   username: string
@@ -8,7 +8,7 @@ interface LoginForm {
 export default {
   authenticate(detail: LoginForm) {
     return new Promise((resolve, reject) => {
-      api.post('/authentications', detail)
+      axios.post('/authentications', detail)
         .then((res) => {
           resolve(res.data)
         })
