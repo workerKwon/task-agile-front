@@ -5,31 +5,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import logo from '../images/logo.png'
 
 import { useRecoilState, useRecoilValue } from 'recoil'
-import {
-  hasBoardsState,
-  personalBoardsState,
-  teamBoardsState,
-  userState,
-  logout
-} from '../recoil/state'
+import { userState, logout } from '../recoil/state'
 
 import meService from '../services/me/me'
 import notify from '../utils/notify'
 import { useEffect } from 'react'
+import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 
 function PageHeader() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const hasBoards = useRecoilValue(hasBoardsState)
-  const personalBoards = useRecoilValue(personalBoardsState)
-  const teamBoards = useRecoilValue(teamBoardsState)
-  const [user] = useRecoilState(userState)
+  const hasBoards = useRecoilValue(hasBoardsSelector)
+  const personalBoards = useRecoilValue(personalBoardsSelector)
+  const teamBoards = useRecoilValue(teamBoardsSelector)
+  const [user, setUser] = useRecoilState(userState)
 
   useEffect(() => {
     if (!user.authenticated) {
       meService.getMyData()
-      // setUser({ ...user, name: myData.user.name, authenticated: myData.user.authenticated })
+        .then(data => {
+          setUser({ ...user, name: data.user.name, authenticated: true })
+        })
     }
   },[])
 

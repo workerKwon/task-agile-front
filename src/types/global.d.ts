@@ -4,6 +4,7 @@ declare global {
   interface Board {
     name: string
     id: number
+    teamId: number
     description: string
     personal: boolean
   }

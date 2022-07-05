@@ -1,20 +1,20 @@
 import PageHeader from '../components/PageHeader'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useRecoilValue } from 'recoil'
-import { personalBoardsState, teamBoardsState } from '../recoil/state'
 import { useTranslation } from 'react-i18next'
 import CreateBoardModal from '../modals/CreateBoardModal'
 import CreateTeamModal from '../modals/CreateTeamModal'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as $ from 'jquery'
+import { personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 
 function HomePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [selectedTeamId, setSelectedTeamId] = useState(0)
-  const personalBoards = useRecoilValue(personalBoardsState)
-  const teamBoards = useRecoilValue(teamBoardsState)
+  const personalBoards = useRecoilValue(personalBoardsSelector)
+  const teamBoards = useRecoilValue(teamBoardsSelector)
 
   const openBoard = (board: Board) => {
     navigate('/board', { state: { boardId: board.id } })

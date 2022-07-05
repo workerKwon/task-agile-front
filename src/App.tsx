@@ -1,6 +1,4 @@
-// import { useState } from 'react'
-import { RecoilRoot } from 'recoil'
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import BoardPage from './pages/BoardPage'
