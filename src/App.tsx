@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.min'
 import './App.scss'
 import bus from './event-bus'
 

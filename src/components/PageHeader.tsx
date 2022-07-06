@@ -32,7 +32,7 @@ function PageHeader() {
   },[])
 
   function goHome() {
-    navigate('/home')
+    navigate('/')
   }
 
   function openBoard(board: Board) {
