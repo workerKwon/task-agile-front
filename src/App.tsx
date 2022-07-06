@@ -4,12 +4,12 @@ import LoginPage from './pages/LoginPage'
 import BoardPage from './pages/BoardPage'
 import RegisterPage from './pages/RegisterPage'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
+import { fas } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.scss'
 import bus from './event-bus'
 
-library.add(faUserSecret)
+library.add(fas)
 
 const App = () => {
   const navigate = useNavigate()
