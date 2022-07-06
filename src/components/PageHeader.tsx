@@ -11,6 +11,7 @@ import meService from '../services/me/me'
 import notify from '../utils/notify'
 import { useEffect } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
+import './stylesheet/pageheader.scss'
 
 function PageHeader() {
   const { t } = useTranslation()
