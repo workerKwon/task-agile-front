@@ -9,9 +9,47 @@ import { userState, boardsState, teamsState } from '../recoil/state'
 
 import meService from '../services/me/me'
 import notify from '../utils/notify'
-import { useEffect } from 'react'
+import { useEffect, Fragment } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scss'
+import PropTypes from 'prop-types'
+
+function TeamBoardsComponent(props: { team: Team }) {
+  const navigate = useNavigate()
+
+  function openBoard(board: Board) {
+    navigate('/board', { state: { boardId: board.id } })
+  }
+
+  const teamComponent = props.team.boards.map((board: Board, index) =>
+    <button
+      key={index}
+      className='dropdown-item'
+      type='button'
+      onClick={() => openBoard(board)}
+    >
+      {board.name}
+    </button>
+  )
+
+  return <>{ teamComponent }</>
+}
+
+
+function TeamComponent(props: { teamBoards: Team[] }) {
+  const teamComponent = props.teamBoards.map((teamData: Team, index) =>
+    <Fragment key={index}>
+      <h6 className='dropdown-header'>{teamData.name}</h6>
+      <TeamBoardsComponent team={teamData} />
+    </Fragment>
+  )
+
+  return <>{ teamComponent }</>
+}
+
+TeamComponent.propTypes = {
+  teamBoards: PropTypes.array
+}
 
 function PageHeader() {
   const { t } = useTranslation()
@@ -21,6 +59,8 @@ function PageHeader() {
   const personalBoards = useRecoilValue(personalBoardsSelector)
   const teamBoards = useRecoilValue(teamBoardsSelector)
   const [user, setUser] = useRecoilState(userState)
+  const setTeams = useRecoilState(teamsState)[1]
+  const setBoards = useRecoilState(boardsState)[1]
 
   const resetBoards = useResetRecoilState(boardsState)
   const resetTeams = useResetRecoilState(teamsState)
@@ -31,9 +71,11 @@ function PageHeader() {
       meService.getMyData()
         .then(data => {
           setUser({ ...user, name: data.user.name, authenticated: true })
+          setTeams([...data.teams])
+          setBoards([...data.boards])
         })
     }
-  },[])
+  }, [])
 
   function goHome() {
     navigate('/')
@@ -94,21 +136,7 @@ function PageHeader() {
                       {board.name}
                     </button>
                   ))}
-                  {teamBoards.map((team: Team) => (
-                    <>
-                      <h6 className='dropdown-header'>{team.name}</h6>
-                      {team.boards.map((board: Board, index) => (
-                        <button
-                          key={index}
-                          className='dropdown-item'
-                          type='button'
-                          onClick={() => openBoard(board)}
-                        >
-                          {board.name}
-                        </button>
-                      ))}
-                    </>
-                  ))}
+                  <TeamComponent teamBoards={teamBoards} />
                 </>
               )}
             </div>
