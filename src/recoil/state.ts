@@ -1,4 +1,4 @@
-import { atom, useResetRecoilState } from 'recoil'
+import { atom } from 'recoil'
 
 export const userState = atom<User>({
   key: 'user',
@@ -17,9 +17,3 @@ export const teamsState = atom<Team[]>({
   key: 'teams',
   default: []
 })
-
-export const logout = () => {
-  useResetRecoilState(boardsState)
-  useResetRecoilState(teamsState)
-  useResetRecoilState(userState)
-}

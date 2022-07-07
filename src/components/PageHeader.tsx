@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import logo from '../images/logo.png'
 
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { userState, logout } from '../recoil/state'
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { userState, boardsState, teamsState } from '../recoil/state'
 
 import meService from '../services/me/me'
 import notify from '../utils/notify'
@@ -21,6 +21,10 @@ function PageHeader() {
   const personalBoards = useRecoilValue(personalBoardsSelector)
   const teamBoards = useRecoilValue(teamBoardsSelector)
   const [user, setUser] = useRecoilState(userState)
+
+  const resetBoards = useResetRecoilState(boardsState)
+  const resetTeams = useResetRecoilState(teamsState)
+  const resetUser = useResetRecoilState(userState)
 
   useEffect(() => {
     if (!user.authenticated) {
@@ -42,10 +46,11 @@ function PageHeader() {
   function signOut() {
     // this.$rt.logout()
     //
-    meService
-      .signOut()
+    meService.signOut()
       .then(() => {
-        logout()
+        resetBoards()
+        resetTeams()
+        resetUser()
         navigate('/login')
       })
       .catch((error) => {
