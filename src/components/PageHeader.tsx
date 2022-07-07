@@ -14,14 +14,14 @@ import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '.
 import './stylesheet/pageheader.scss'
 import PropTypes from 'prop-types'
 
-function TeamBoardsComponent(props: { team: Team }) {
+function TeamBoardsComponent({ team }: { team: Team }) {
   const navigate = useNavigate()
 
   function openBoard(board: Board) {
     navigate('/board', { state: { boardId: board.id } })
   }
 
-  const teamComponent = props.team.boards.map((board: Board, index) =>
+  const teamComponent = team.boards.map((board: Board, index) =>
     <button
       key={index}
       className='dropdown-item'
@@ -36,11 +36,11 @@ function TeamBoardsComponent(props: { team: Team }) {
 }
 
 
-function TeamComponent(props: { teamBoards: Team[] }) {
-  const teamComponent = props.teamBoards.map((teamData: Team, index) =>
+function TeamComponent({ teamBoards } : {teamBoards: Team[]}) {
+  const teamComponent = teamBoards.map((team: Team, index) =>
     <Fragment key={index}>
-      <h6 className='dropdown-header'>{teamData.name}</h6>
-      <TeamBoardsComponent team={teamData} />
+      <h6 className='dropdown-header'>{team.name}</h6>
+      <TeamBoardsComponent team={team} />
     </Fragment>
   )
 
