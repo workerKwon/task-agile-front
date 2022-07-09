@@ -14,43 +14,6 @@ import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '.
 import './stylesheet/pageheader.scss'
 import PropTypes from 'prop-types'
 
-function TeamBoardsComponent({ team }: { team: Team }) {
-  const navigate = useNavigate()
-
-  function openBoard(board: Board) {
-    navigate('/board', { state: { boardId: board.id } })
-  }
-
-  const teamComponent = team.boards.map((board: Board, index) =>
-    <button
-      key={index}
-      className='dropdown-item'
-      type='button'
-      onClick={() => openBoard(board)}
-    >
-      {board.name}
-    </button>
-  )
-
-  return <>{ teamComponent }</>
-}
-
-
-function TeamComponent({ teamBoards } : {teamBoards: Team[]}) {
-  const teamComponent = teamBoards.map((team: Team, index) =>
-    <Fragment key={index}>
-      <h6 className='dropdown-header'>{team.name}</h6>
-      <TeamBoardsComponent team={team} />
-    </Fragment>
-  )
-
-  return <>{ teamComponent }</>
-}
-
-TeamComponent.propTypes = {
-  teamBoards: PropTypes.array
-}
-
 function PageHeader() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -79,10 +42,6 @@ function PageHeader() {
 
   function goHome() {
     navigate('/')
-  }
-
-  function openBoard(board: Board) {
-    navigate('/board', { state: { boardId: board.id } })
   }
 
   function signOut() {
@@ -123,19 +82,10 @@ function PageHeader() {
               {!hasBoards && <div className='dropdown-item'>{t('header.boardsMenu.noBoard')}</div>}
               {hasBoards && (
                 <>
-                  {personalBoards.length && (
+                  {personalBoards.length > 0 && (
                     <h6 className='dropdown-header'>{t('header.boardsMenu.personalBoards')}</h6>
                   )}
-                  {personalBoards.map((board, index) => (
-                    <button
-                      key={index}
-                      className='dropdown-item'
-                      type='button'
-                      onClick={() => openBoard(board)}
-                    >
-                      {board.name}
-                    </button>
-                  ))}
+                  <PersonalBoardsComponent personalBoards={personalBoards}/>
                   <TeamComponent teamBoards={teamBoards} />
                 </>
               )}
@@ -180,3 +130,62 @@ function PageHeader() {
 }
 
 export default PageHeader
+
+function PersonalBoardsComponent({ personalBoards } : {personalBoards: Board[]}) {
+
+  function openBoard(board: Board) {
+    const navigate = useNavigate()
+    navigate(`/board/${board.id}`)
+  }
+
+  const personalBoardsComponent = personalBoards.map((board, index) =>
+    <button
+      key={index}
+      className='dropdown-item'
+      type='button'
+      onClick={() => openBoard(board)}
+    >
+      {board.name}
+    </button>
+  )
+
+  return <>{personalBoardsComponent}</>
+}
+
+function TeamBoardsComponent({ team }: { team: Team }) {
+
+  const navigate = useNavigate()
+
+  function openBoard(board: Board) {
+    navigate(`/board/${board.id}`)
+  }
+
+  const teamComponent = team.boards.map((board: Board, index) =>
+    <button
+      key={index}
+      className='dropdown-item'
+      type='button'
+      onClick={() => openBoard(board)}
+    >
+      {board.name}
+    </button>
+  )
+
+  return <>{ teamComponent }</>
+}
+
+
+function TeamComponent({ teamBoards } : {teamBoards: Team[]}) {
+  const teamComponent = teamBoards.map((team: Team, index) =>
+    <Fragment key={index}>
+      <h6 className='dropdown-header'>{team.name}</h6>
+      <TeamBoardsComponent team={team} />
+    </Fragment>
+  )
+
+  return <>{ teamComponent }</>
+}
+
+TeamComponent.propTypes = {
+  teamBoards: PropTypes.array
+}

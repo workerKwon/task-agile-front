@@ -33,7 +33,7 @@ export const personalBoardsSelector = selector<Board[]>({
 export const teamBoardsSelector = selector<Team[]>({
   key: 'teamBoardsSelector',
   get: ({ get }) => {
-    const teams: {id:number, name: string, boards: Board[]}[] = []
+    const teams: { id:number, name: string, boards: Board[] }[] = []
     get(teamsState).forEach(team => {
       teams.push({
         id: team.id,
