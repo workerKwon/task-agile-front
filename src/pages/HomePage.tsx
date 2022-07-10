@@ -18,7 +18,7 @@ function HomePage() {
   const teamBoards = useRecoilValue(teamBoardsSelector)
 
   const openBoard = (board: Board) => {
-    navigate('/board', { state: { boardId: board.id } })
+    navigate(`/board/${board.id}`)
   }
 
   const createBoard = (team: Team) => {

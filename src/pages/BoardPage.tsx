@@ -23,7 +23,7 @@ const BoardPage = () => {
   const [board] = useState({ id: 0, name: '', personal: false })
   const [team] = useState({ name: '' })
   const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
-  const [cardLists] = useState<AddedCardList[]>([])
+  const [cardLists, setCardLists] = useState<AddedCardList[]>([])
   const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
   const [addListForm, setAddListForm] = useState({ open: false, name: '' })
 
@@ -331,7 +331,7 @@ const BoardPage = () => {
 
   return (
     <>
-      {board.id && (
+      {board.id != null && (
         <div className='page'>
           <PageHeader />
           <div className='page-body'>
@@ -361,7 +361,8 @@ const BoardPage = () => {
                 </div>
                 <div className='board-body'>
                   <ReactSortable
-                    // value={cardLists}
+                    list={cardLists}
+                    setList={setCardLists}
                     className='list-container'
                     handle='.list-header'
                     animation={0}
@@ -374,7 +375,7 @@ const BoardPage = () => {
                         <div className='list'>
                           <div className='list-header'>{cardList.name}</div>
                           <ReactSortable
-                            // value={addCardList.cards}
+                            list={cardList.cards}
                             className='cards'
                             draggable='.card-item'
                             group='cards'
