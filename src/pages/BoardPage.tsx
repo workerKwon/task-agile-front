@@ -78,7 +78,7 @@ const BoardPage = () => {
             })
           })
 
-          setCardLists(cardLists.splice(0))
+          setCardLists((oldValue) => oldValue.splice(0))
 
           data.cardLists.sort((list1: CardList, list2: CardList) => {
             return list1.position - list2.position
@@ -89,7 +89,7 @@ const BoardPage = () => {
               return card1.position - card2.position
             })
 
-            setCardLists([...cardLists, {
+            setCardLists((oldValue) =>[...oldValue, {
               id: cardList.id,
               name: cardList.name,
               cards: cardList.cards,
@@ -198,7 +198,7 @@ const BoardPage = () => {
 
     cardListService.add(cardList)
       .then(savedCardList => {
-        setCardLists([...cardLists, {
+        setCardLists((oldValue) => [...oldValue, {
           id: savedCardList.id,
           name: savedCardList.name,
           cards: [],
@@ -349,7 +349,6 @@ const BoardPage = () => {
                         <span>{member.shortName}</span>
                       </div>
                     ))}
-
                     <div className='member add-member-toggle' onClick={openAddMember}>
                       <span>
                         <FontAwesomeIcon icon='user-plus' />
@@ -485,8 +484,6 @@ export default BoardPage
 
 function CardComponent({ cardList } : {cardList : AddedCardList}) {
   const component = cardList.cards.map((card) =>{
-    console.log(cardList)
-
     return (
       <div
         key={card.id}
