@@ -20,8 +20,8 @@ type AddedCardList = {
 }
 
 const BoardPage = () => {
-  const [board] = useState({ id: 0, name: '', personal: false })
-  const [team] = useState({ name: '' })
+  const [board, setBoard] = useState({ id: 0, name: '', personal: false })
+  const [team, setTeam] = useState({ name: '' })
   const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
   const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
@@ -65,10 +65,8 @@ const BoardPage = () => {
       boardService
         .getBoard(boardId)
         .then((data: { team: Team; board: Board; members: Member[]; cardLists: CardList[] }) => {
-          team.name = data.team ? data.team.name : ''
-          board.id = data.board.id
-          board.personal = data.board.personal
-          board.name = data.board.name
+          setTeam({ ...team, name: data.team ? data.team.name : '' })
+          setBoard({ ...board, id: data.board.id, personal: data.board.personal, name: data.board.name })
 
           members.splice(0)
 
@@ -80,7 +78,7 @@ const BoardPage = () => {
             })
           })
 
-          cardLists.splice(0)
+          setCardLists(cardLists.splice(0))
 
           data.cardLists.sort((list1: CardList, list2: CardList) => {
             return list1.position - list2.position
@@ -91,7 +89,7 @@ const BoardPage = () => {
               return card1.position - card2.position
             })
 
-            cardLists.push({
+            setCardLists([...cardLists, {
               id: cardList.id,
               name: cardList.name,
               cards: cardList.cards,
@@ -99,7 +97,7 @@ const BoardPage = () => {
                 open: false,
                 title: ''
               }
-            })
+            }])
           })
           // TODO
           //  this.subscribeToRealTimeUpdate(data.board.id)
@@ -181,10 +179,10 @@ const BoardPage = () => {
     }
   }
 
-  const openCard = (card: any) => {
-    const cardTitle = card.title.toLowerCase().trim().replace(/\s/g, '-')
-    navigate('/card', { state: { cardId: card.id, cardTitle } })
-  }
+  // const openCard = (card: any) => {
+  //   const cardTitle = card.title.toLowerCase().trim().replace(/\s/g, '-')
+  //   navigate('/card', { state: { cardId: card.id, cardTitle } })
+  // }
 
   const addCardList = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -200,7 +198,7 @@ const BoardPage = () => {
 
     cardListService.add(cardList)
       .then(savedCardList => {
-        cardLists.push({
+        setCardLists([...cardLists, {
           id: savedCardList.id,
           name: savedCardList.name,
           cards: [],
@@ -208,7 +206,7 @@ const BoardPage = () => {
             open: false,
             title: ''
           }
-        })
+        }])
         closeAddListForm()
       })
       .catch(error => {
@@ -376,59 +374,49 @@ const BoardPage = () => {
                           <div className='list-header'>{cardList.name}</div>
                           <ReactSortable
                             list={cardList.cards}
+                            setList={(currentList) => currentList}
                             className='cards'
-                            draggable='.card-item'
+                            handle='.card-item'
                             group='cards'
                             ghostClass='ghost-card'
                             animation={0}
                             scrollSensitivity={100}
                             touchStartThreshold={20}
-                            // dataListId={cardList.id}
+                            // data-list-id={cardList.id}
                             onEnd={(e) => onCardDragEnded(e)}
                           >
-                            {cardList.cards.map((card) => (
-                              <div
-                                key={card.id}
-                                className='card-item'
-                                onClick={() => openCard(card)}
-                              >
-                                {card.coverImage && (
-                                  <div className='cover-image'>
-                                    <img src={card.coverImage} alt={'image'} />
-                                  </div>
-                                )}
-                                <div className='card-title'>{card.title}</div>
-                              </div>
-                            ))}
-                            {cardList.cardForm.open && (
-                              <div className='add-card-form-wrapper'>
-                                <form
-                                  className='add-card-form'
-                                  onSubmit={(e) => onSubmit(e, cardList)}
-                                >
-                                  <div className='form-group'>
-                                    <textarea
-                                      id={'cardTitle' + cardList.id}
-                                      value={cardList.cardForm.title}
-                                      className='form-control'
-                                      placeholder='Type card title here'
-                                      onKeyDown={(e) => onKeyDownEnter(e, cardList)}
-                                      /* TODO : @keydown.enter.prevent=addCard(cardList) */
-                                    />
-                                  </div>
-                                  <button type='submit' className='btn btn-sm btn-primary'>
-                                    Add
-                                  </button>
-                                  <button
-                                    type='button'
-                                    className='btn btn-sm btn-link btn-cancel'
-                                    onClick={() => closeAddCardForm(cardList)}
+                            <>
+                              <CardComponent cardList={cardList} />
+                              {cardList.cardForm.open && (
+                                <div className='add-card-form-wrapper'>
+                                  <form
+                                    className='add-card-form'
+                                    onSubmit={(e) => onSubmit(e, cardList)}
                                   >
+                                    <div className='form-group'>
+                                      <textarea
+                                        id={'cardTitle' + cardList.id}
+                                        value={cardList.cardForm.title}
+                                        className='form-control'
+                                        placeholder='Type card title here'
+                                        onKeyDown={(e) => onKeyDownEnter(e, cardList)}
+                                      /* TODO : @keydown.enter.prevent=addCard(cardList) */
+                                      />
+                                    </div>
+                                    <button type='submit' className='btn btn-sm btn-primary'>
+                                    Add
+                                    </button>
+                                    <button
+                                      type='button'
+                                      className='btn btn-sm btn-link btn-cancel'
+                                      onClick={() => closeAddCardForm(cardList)}
+                                    >
                                     Cancel
-                                  </button>
-                                </form>
-                              </div>
-                            )}
+                                    </button>
+                                  </form>
+                                </div>
+                              )}
+                            </>
                           </ReactSortable>
                           {!cardList.cardForm.open && (
                             <div
@@ -494,3 +482,26 @@ const BoardPage = () => {
 }
 
 export default BoardPage
+
+function CardComponent({ cardList } : {cardList : AddedCardList}) {
+  const component = cardList.cards.map((card) =>{
+    console.log(cardList)
+
+    return (
+      <div
+        key={card.id}
+        className='card-item'
+      // onClick={() => openCard(card)}
+      >
+        {card.coverImage != null && (
+          <div className='cover-image'>
+            <img src={card.coverImage} alt={'image'} />
+          </div>
+        )}
+        <div className='card-title'>{card.title}</div>
+      </div>
+    )}
+  )
+
+  return <>{component}</>
+}
