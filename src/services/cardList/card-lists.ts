@@ -13,7 +13,7 @@ export default {
     })
   },
   changePositions(positionChanges: {boardId: number, cardListPositions: {cardListId: number, position: number}[]}) {
-    return new Promise<CardList>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       axios.post('/card-lists/positions', positionChanges)
         .then(({ data }) => {
           resolve(data)

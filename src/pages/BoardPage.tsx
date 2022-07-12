@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import boardService from '../services/board/board'
 import cardListService from '../services/cardList/card-lists'
 
-type AddedCardList = {
+interface AddedCardList {
   id: number
   name: string
   cards: { id: number; title: string; coverImage: string }[]
@@ -225,12 +225,14 @@ const BoardPage = () => {
       boardId: board.id,
       cardListPositions: []
     }
+
     cardLists.forEach((cardList, index) => {
       positionChanges.cardListPositions.push({
         cardListId: cardList.id,
         position: index + 1
       })
     })
+
     cardListService.changePositions(positionChanges)
       .catch(error => {
         notify.error(error.message)
@@ -327,6 +329,13 @@ const BoardPage = () => {
     }
   }
 
+  async function changeCardList(newCardLists: AddedCardList[]) {
+    await setCardLists(() => [...newCardLists])
+  }
+  useEffect(() => {
+    setCardLists(cardLists)
+  },[cardLists])
+
   return (
     <>
       {board.id != null && (
@@ -359,13 +368,10 @@ const BoardPage = () => {
                 <div className='board-body'>
                   <ReactSortable
                     list={cardLists}
-                    setList={setCardLists}
+                    setList={(newValue) => changeCardList(newValue)
+                    }
                     className='list-container'
-                    handle='.list-header'
-                    animation={0}
-                    scrollSensitivity={100}
-                    touchStartThreshold={20}
-                    onEnd={(e) => onCardListDragEnded(e)}
+                    onEnd={onCardListDragEnded}
                   >
                     {cardLists.map((cardList) => (
                       <div key={cardList.id} className='list-wrapper'>
@@ -381,7 +387,7 @@ const BoardPage = () => {
                             animation={0}
                             scrollSensitivity={100}
                             touchStartThreshold={20}
-                            // data-list-id={cardList.id}
+                            data-list-id={cardList.id}
                             onEnd={(e) => onCardDragEnded(e)}
                           >
                             <>
