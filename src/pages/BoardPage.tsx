@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PageHeader from '../components/PageHeader'
 import AddMemberModal from '../modals/AddMemberModal'
 import CardModal from '../modals/CardModal'
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { ReactSortable, SortableEvent } from 'react-sortablejs'
 import cardService from '../services/card/card'
 import $ from 'jquery'
@@ -218,8 +218,8 @@ const BoardPage = () => {
     $('#addMemberModal').modal('show')
   }
 
-  const onCardListDragEnded = (event: SortableEvent) => {
-    console.log('[BoardPage] Card list drag ended', event)
+  const onCardListDragEnded = () => {
+    console.log('[BoardPage] Card list drag ended')
     // Get the latest card list order and send it to the back-end
     const positionChanges: {boardId: number, cardListPositions: {cardListId: number, position: number}[]} = {
       boardId: board.id,
@@ -329,12 +329,13 @@ const BoardPage = () => {
     }
   }
 
-  async function changeCardList(newCardLists: AddedCardList[]) {
-    await setCardLists(() => [...newCardLists])
-  }
+  const isCardListsSortingRef = useRef(false)
+
   useEffect(() => {
-    setCardLists(cardLists)
-  },[cardLists])
+    if (!isCardListsSortingRef.current) return
+    isCardListsSortingRef.current = false
+    onCardListDragEnded()
+  }, [cardLists])
 
   return (
     <>
@@ -368,10 +369,13 @@ const BoardPage = () => {
                 <div className='board-body'>
                   <ReactSortable
                     list={cardLists}
-                    setList={(newValue) => changeCardList(newValue)
-                    }
+                    setList={setCardLists}
                     className='list-container'
-                    onEnd={onCardListDragEnded}
+                    handle='.list-header'
+                    animation={0}
+                    scrollSensitivity={100}
+                    touchStartThreshold={20}
+                    onEnd={() => isCardListsSortingRef.current = true}
                   >
                     {cardLists.map((cardList) => (
                       <div key={cardList.id} className='list-wrapper'>
