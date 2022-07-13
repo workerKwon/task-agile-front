@@ -26,6 +26,7 @@ const BoardPage = () => {
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
   const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
   const [addListForm, setAddListForm] = useState({ open: false, name: '' })
+  const [cardsEvent, setCardsEvent] = useState<SortableEvent>()
 
   const focusedCardList = useMemo(() => {
     return cardLists.filter((cardList) => cardList.id === openedCard.cardListId)[0] || {}
@@ -239,6 +240,11 @@ const BoardPage = () => {
       })
   }
 
+  function changeSortableState(event: SortableEvent) {
+    isCardsSortingRef.current = true
+    setCardsEvent(event)
+  }
+
   const onCardDragEnded = (event: SortableEvent) => {
     console.log('card drag ended', event)
     // Get the card list that have card orders changed
@@ -248,6 +254,7 @@ const BoardPage = () => {
     if (fromListId !== toListId) {
       changedListIds.push(toListId)
     }
+
     const positionChanges: {boardId: number, cardPositions: {cardListId: string | undefined, cardId: number, position: number}[]} = {
       boardId: board.id,
       cardPositions: []
@@ -330,12 +337,40 @@ const BoardPage = () => {
   }
 
   const isCardListsSortingRef = useRef(false)
+  const isCardsSortingRef = useRef(false)
 
   useEffect(() => {
     if (!isCardListsSortingRef.current) return
     isCardListsSortingRef.current = false
     onCardListDragEnded()
   }, [cardLists])
+
+  useEffect(() => {
+    if (!isCardsSortingRef.current) return
+    isCardsSortingRef.current = false
+    if (cardsEvent) {
+      onCardDragEnded(cardsEvent)
+    }
+  }, [cardLists])
+
+
+  const cardListsRef = useRef<AddedCardList[]>([])
+
+  function changeCardPosition(newCards: { id: number; title: string; coverImage: string }[], newCardList: AddedCardList) {
+    if (cardListsRef.current.length === 0) cardListsRef.current = cardLists
+    cardListsRef.current = cardListsRef.current.map(cardList => {
+      return cardList.id === newCardList.id ? {
+        ...cardList,
+        cards: newCards
+      } : { ...cardList }
+    })
+    console.log(cardListsRef.current)
+    setCardLists(cardListsRef.current)
+  }
+
+  function test(newCardLists: AddedCardList[]) {
+    setCardLists(newCardLists)
+  }
 
   return (
     <>
@@ -369,7 +404,7 @@ const BoardPage = () => {
                 <div className='board-body'>
                   <ReactSortable
                     list={cardLists}
-                    setList={setCardLists}
+                    setList={(newState) => test(newState)}
                     className='list-container'
                     handle='.list-header'
                     animation={0}
@@ -383,16 +418,16 @@ const BoardPage = () => {
                           <div className='list-header'>{cardList.name}</div>
                           <ReactSortable
                             list={cardList.cards}
-                            setList={(currentList) => currentList}
+                            setList={(newValue) => changeCardPosition(newValue, cardList)}
                             className='cards'
-                            handle='.card-item'
+                            draggable='.card-item'
                             group='cards'
                             ghostClass='ghost-card'
                             animation={0}
                             scrollSensitivity={100}
                             touchStartThreshold={20}
                             data-list-id={cardList.id}
-                            onEnd={(e) => onCardDragEnded(e)}
+                            onEnd={(e) => changeSortableState(e)}
                           >
                             <>
                               <CardComponent cardList={cardList} />
@@ -409,7 +444,7 @@ const BoardPage = () => {
                                         className='form-control'
                                         placeholder='Type card title here'
                                         onKeyDown={(e) => onKeyDownEnter(e, cardList)}
-                                      /* TODO : @keydown.enter.prevent=addCard(cardList) */
+                                        // onkeydown.enter.prevent={addCard(cardList)}
                                       />
                                     </div>
                                     <button type='submit' className='btn btn-sm btn-primary'>
