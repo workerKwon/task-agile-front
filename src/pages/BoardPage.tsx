@@ -428,12 +428,12 @@ const BoardPage = () => {
                             setList={(newValue) => {
                               setCardLists((sourceList) => {
                                 const tempList = [...sourceList]
-                                const _cardListIndex = [cardListIndex]
-                                const lastIndex = _cardListIndex.pop()
-                                const lastArr = _cardListIndex.reduce(
-                                    (accumulator) => accumulator, tempList
-                                )
-                                if (lastIndex !== undefined) lastArr[lastIndex]["cards"] = newValue
+                                // const _cardListIndex = [cardListIndex]
+                                // const lastIndex = _cardListIndex.pop()
+                                // const lastArr = _cardListIndex.reduce(
+                                //     (accumulator) => accumulator, tempList
+                                // )
+                                tempList[cardListIndex]["cards"] = newValue
                                 return tempList
                               })
                             }}
