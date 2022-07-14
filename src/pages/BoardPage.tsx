@@ -240,16 +240,11 @@ const BoardPage = () => {
       })
   }
 
-  function changeSortableState(event: SortableEvent) {
-    isCardsSortingRef.current = true
-    setCardsEvent(event)
-  }
-
   const onCardDragEnded = (event: SortableEvent) => {
     console.log('card drag ended', event)
     // Get the card list that have card orders changed
-    const fromListId = event.from.dataset.listId
-    const toListId = event.to.dataset.listId
+    const fromListId = event.from.id
+    const toListId = event.to.id
     const changedListIds = [fromListId]
     if (fromListId !== toListId) {
       changedListIds.push(toListId)
@@ -354,23 +349,32 @@ const BoardPage = () => {
   }, [cardLists])
 
 
-  const cardListsRef = useRef<AddedCardList[]>([])
-
-  function changeCardPosition(newCards: { id: number; title: string; coverImage: string }[], newCardList: AddedCardList) {
-    if (cardListsRef.current.length === 0) cardListsRef.current = cardLists
-    cardListsRef.current = cardListsRef.current.map(cardList => {
-      return cardList.id === newCardList.id ? {
-        ...cardList,
-        cards: newCards
-      } : { ...cardList }
-    })
-    console.log(cardListsRef.current)
-    setCardLists(cardListsRef.current)
-  }
-
-  function test(newCardLists: AddedCardList[]) {
-    setCardLists(newCardLists)
-  }
+  // const cardListsRef = useRef<AddedCardList[]>([])
+  //
+  // function changeCardPosition(newCards: { id: number; title: string; coverImage: string }[], newCardList: AddedCardList) {
+  //   if (cardListsRef.current.length === 0) cardListsRef.current = cardLists
+  //   cardListsRef.current = cardListsRef.current.map(cardList => {
+  //     return cardList.id === newCardList.id ? {
+  //       ...cardList,
+  //       cards: newCards
+  //     } : { ...cardList }
+  //   })
+  //   console.log(cardListsRef.current)
+  //   setCardLists(cardListsRef.current)
+  // }
+  //
+  // function changeCardPo(newValue: { id: number; title: string; coverImage: string }[], cardListIndex: number) {
+  //       setCardLists((sourceList) => {
+  //         const tempList = [...sourceList]
+  //         const _cardListIndex = [cardListIndex]
+  //         const lastIndex = _cardListIndex.pop()
+  //         const lastArr = _cardListIndex.reduce(
+  //             (accumulator) => accumulator, tempList
+  //         )
+  //         if (lastIndex !== undefined) lastArr[lastIndex]["cards"] = newValue
+  //         return tempList
+  //       })
+  // }
 
   return (
     <>
@@ -404,21 +408,35 @@ const BoardPage = () => {
                 <div className='board-body'>
                   <ReactSortable
                     list={cardLists}
-                    setList={(newState) => test(newState)}
+                    setList={setCardLists}
                     className='list-container'
                     handle='.list-header'
                     animation={0}
                     scrollSensitivity={100}
                     touchStartThreshold={20}
-                    onEnd={() => isCardListsSortingRef.current = true}
+                    onEnd={() => {
+                      isCardListsSortingRef.current = true
+
+                    }}
                   >
-                    {cardLists.map((cardList) => (
+                    {cardLists.map((cardList, cardListIndex) => (
                       <div key={cardList.id} className='list-wrapper'>
                         <div className='list'>
                           <div className='list-header'>{cardList.name}</div>
                           <ReactSortable
                             list={cardList.cards}
-                            setList={(newValue) => changeCardPosition(newValue, cardList)}
+                            setList={(newValue) => {
+                              setCardLists((sourceList) => {
+                                const tempList = [...sourceList]
+                                const _cardListIndex = [cardListIndex]
+                                const lastIndex = _cardListIndex.pop()
+                                const lastArr = _cardListIndex.reduce(
+                                    (accumulator) => accumulator, tempList
+                                )
+                                if (lastIndex !== undefined) lastArr[lastIndex]["cards"] = newValue
+                                return tempList
+                              })
+                            }}
                             className='cards'
                             draggable='.card-item'
                             group='cards'
@@ -426,8 +444,11 @@ const BoardPage = () => {
                             animation={0}
                             scrollSensitivity={100}
                             touchStartThreshold={20}
-                            data-list-id={cardList.id}
-                            onEnd={(e) => changeSortableState(e)}
+                            id={`${cardList.id}`}
+                            onEnd={(event) => {
+                              isCardsSortingRef.current = true
+                              setCardsEvent(event)
+                            }}
                           >
                             <>
                               <CardComponent cardList={cardList} />
