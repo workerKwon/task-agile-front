@@ -31,7 +31,7 @@ function HomePage() {
   }
 
   const onBoardCreated = (boardId: number) => {
-    navigate('/board', { state: { boardId } })
+    navigate(`/board/${ boardId }`)
   }
 
   return (
@@ -89,7 +89,7 @@ function HomePage() {
             </button>
           </div>
         </div>
-        <CreateBoardModal teamId={selectedTeamId} onCreated={() => onBoardCreated} />
+        <CreateBoardModal teamId={selectedTeamId} onCreated={(boardId) => onBoardCreated(boardId)} />
         <CreateTeamModal />
       </div>
     </>

@@ -2,28 +2,26 @@ import { useState } from 'react'
 import boardService from '../services/board/board'
 import { useForm } from 'react-hook-form'
 import $ from 'jquery'
+import { useRecoilState } from 'recoil'
+import { boardsState } from '../recoil/state'
 
 const CreateBoardModal = (props: { onCreated: (number: number) => void; teamId: number }) => {
   const [errorMessage, setErrorMessage] = useState('')
 
+  const [boardState, setBoardState] = useRecoilState(boardsState)
+
   const { register, handleSubmit, formState: { errors }, reset } = useForm<{name: string, description: string}>()
 
   const saveBoard = (data: {name: string, description: string}) => {
-    // this.$v.$touch()
-    // if (this.$v.$invalid) {
-    //   return
-    // }
-    const savedBoard = {
+    const board = {
       teamId: props.teamId,
       name: data.name,
       description: data.description
     }
 
-    boardService
-      .create(savedBoard)
+    boardService.create(board)
       .then((createdBoard: Board) => {
-        // TODO
-        //  this.$store.dispatch('addBoard', createdBoard)
+        setBoardState([...boardState, createdBoard])
         props.onCreated(createdBoard.id)
         close()
       })
