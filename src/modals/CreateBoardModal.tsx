@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import boardService from '../services/board/board'
 import { useForm } from 'react-hook-form'
+import $ from 'jquery'
 
 const CreateBoardModal = (props: { onCreated: (number: number) => void; teamId: number }) => {
   const [errorMessage, setErrorMessage] = useState('')
 
-  const { register, handleSubmit, formState: { errors } } = useForm<{name: string, description: string}>()
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<{name: string, description: string}>()
 
   const saveBoard = (data: {name: string, description: string}) => {
     // this.$v.$touch()
@@ -29,6 +30,15 @@ const CreateBoardModal = (props: { onCreated: (number: number) => void; teamId: 
       .catch((error: { message: string }) => {
         setErrorMessage(error.message)
       })
+  }
+
+  function close () {
+    reset({
+      name: '',
+      description: ''
+    })
+    setErrorMessage('')
+    $('#createBoardModal').modal('hide')
   }
 
   return (
@@ -88,7 +98,7 @@ const CreateBoardModal = (props: { onCreated: (number: number) => void; teamId: 
                 <button type='submit' className='btn btn-primary'>
                   Create
                 </button>
-                <button type='button' className='btn btn-default btn-cancel' onClick={close}>
+                <button type='button' className='btn btn-default btn-cancel' onClick={() => close()}>
                   Cancel
                 </button>
               </div>

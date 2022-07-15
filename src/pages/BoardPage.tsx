@@ -348,34 +348,6 @@ const BoardPage = () => {
     }
   }, [cardLists])
 
-
-  // const cardListsRef = useRef<AddedCardList[]>([])
-  //
-  // function changeCardPosition(newCards: { id: number; title: string; coverImage: string }[], newCardList: AddedCardList) {
-  //   if (cardListsRef.current.length === 0) cardListsRef.current = cardLists
-  //   cardListsRef.current = cardListsRef.current.map(cardList => {
-  //     return cardList.id === newCardList.id ? {
-  //       ...cardList,
-  //       cards: newCards
-  //     } : { ...cardList }
-  //   })
-  //   console.log(cardListsRef.current)
-  //   setCardLists(cardListsRef.current)
-  // }
-  //
-  // function changeCardPo(newValue: { id: number; title: string; coverImage: string }[], cardListIndex: number) {
-  //       setCardLists((sourceList) => {
-  //         const tempList = [...sourceList]
-  //         const _cardListIndex = [cardListIndex]
-  //         const lastIndex = _cardListIndex.pop()
-  //         const lastArr = _cardListIndex.reduce(
-  //             (accumulator) => accumulator, tempList
-  //         )
-  //         if (lastIndex !== undefined) lastArr[lastIndex]["cards"] = newValue
-  //         return tempList
-  //       })
-  // }
-
   return (
     <>
       {board.id != null && (
@@ -428,12 +400,7 @@ const BoardPage = () => {
                             setList={(newValue) => {
                               setCardLists((sourceList) => {
                                 const tempList = [...sourceList]
-                                // const _cardListIndex = [cardListIndex]
-                                // const lastIndex = _cardListIndex.pop()
-                                // const lastArr = _cardListIndex.reduce(
-                                //     (accumulator) => accumulator, tempList
-                                // )
-                                tempList[cardListIndex]["cards"] = newValue
+                                tempList[cardListIndex].cards = newValue
                                 return tempList
                               })
                             }}
