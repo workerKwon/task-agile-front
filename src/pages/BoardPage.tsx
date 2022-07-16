@@ -36,7 +36,7 @@ const BoardPage = () => {
   const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
   const [addListForm, setAddListForm] = useState(false)
   const [cardsEvent, setCardsEvent] = useState<SortableEvent>()
-  const { register, handleSubmit } = useForm<{ name: string }>()
+  const { register, handleSubmit, reset } = useForm<{ name: string }>()
 
   const focusedCardList = useMemo(() => {
     return cardLists.filter((cardList) => cardList.id === openedCard.cardListId)[0] || {}
@@ -300,6 +300,7 @@ const BoardPage = () => {
 
   const closeAddListForm = () => {
     setAddListForm(false)
+    reset()
   }
 
   const onMemberAdded = (member: { id: number; name: string; shortName: string }) => {
