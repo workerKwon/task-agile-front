@@ -2,7 +2,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import PageHeader from '../components/PageHeader'
 import AddMemberModal from '../modals/AddMemberModal'
 import CardModal from '../modals/CardModal'
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  FormEvent,
+  KeyboardEvent,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import { ReactSortable, SortableEvent } from 'react-sortablejs'
 import cardService from '../services/card/card'
 import $ from 'jquery'
@@ -11,6 +19,7 @@ import './stylesheet/board.scss'
 import { useNavigate, useParams } from 'react-router-dom'
 import boardService from '../services/board/board'
 import cardListService from '../services/cardList/card-lists'
+import { useForm } from 'react-hook-form'
 
 interface AddedCardList {
   id: number
@@ -25,8 +34,9 @@ const BoardPage = () => {
   const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
   const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
-  const [addListForm, setAddListForm] = useState({ open: false, name: '' })
+  const [addListForm, setAddListForm] = useState(false)
   const [cardsEvent, setCardsEvent] = useState<SortableEvent>()
+  const { register, handleSubmit } = useForm<{ name: string }>()
 
   const focusedCardList = useMemo(() => {
     return cardLists.filter((cardList) => cardList.id === openedCard.cardListId)[0] || {}
@@ -67,7 +77,12 @@ const BoardPage = () => {
         .getBoard(boardId)
         .then((data: { team: Team; board: Board; members: Member[]; cardLists: CardList[] }) => {
           setTeam({ ...team, name: data.team ? data.team.name : '' })
-          setBoard({ ...board, id: data.board.id, personal: data.board.personal, name: data.board.name })
+          setBoard({
+            ...board,
+            id: data.board.id,
+            personal: data.board.personal,
+            name: data.board.name
+          })
 
           members.splice(0)
 
@@ -90,7 +105,7 @@ const BoardPage = () => {
               return card1.position - card2.position
             })
 
-            setCardLists((oldValue) =>[...oldValue, {
+            setCardLists((oldValue) => [...oldValue, {
               id: cardList.id,
               name: cardList.name,
               cards: cardList.cards,
@@ -185,15 +200,10 @@ const BoardPage = () => {
   //   navigate('/card', { state: { cardId: card.id, cardTitle } })
   // }
 
-  const addCardList = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!addListForm.name) {
-      return
-    }
-
+  function addCardList(formData: { name: string }) {
     const cardList = {
       boardId: board.id,
-      name: addListForm.name,
+      name: formData.name,
       position: cardLists.length + 1
     }
 
@@ -281,16 +291,15 @@ const BoardPage = () => {
   }
 
   const openAddListForm = () => {
-    addListForm.open = true
-    // TODO
-    // this.$nextTick(() => {
-    $('#cardListName').trigger('focus')
-    // })
+    setAddListForm(true)
   }
 
+  useLayoutEffect(() => {
+    $('#cardListName').trigger('focus')
+  },[addListForm])
+
   const closeAddListForm = () => {
-    addListForm.open = false
-    addListForm.name = ''
+    setAddListForm(false)
   }
 
   const onMemberAdded = (member: { id: number; name: string; shortName: string }) => {
@@ -327,7 +336,7 @@ const BoardPage = () => {
       cardLists.forEach((cardList) => { cardList.cardForm.open = false })
     }
     if (dismissAddListForm) {
-      addListForm.open = false
+      setAddListForm(false)
     }
   }
 
@@ -462,20 +471,17 @@ const BoardPage = () => {
                       </div>
                     ))}
                     <div className='list-wrapper add-list'>
-                      {!addListForm.open && (
+                      {!addListForm && (
                         <div className='add-list-button' onClick={openAddListForm}>
                           + Add a list
                         </div>
                       )}
-                      {addListForm.open && (
-                        <form className='add-list-form' onSubmit={(e) => addCardList(e)}>
+                      {addListForm === true && (
+                        <form className='add-list-form' onSubmit={handleSubmit(addCardList)}>
                           <div className='form-group'>
                             <input
                               id='cardListName'
-                              value={addListForm.name}
-                              onChange={(e) =>
-                                setAddListForm({ ...addListForm, name: e.target.value })
-                              }
+                              {...register('name', { required: true })}
                               type='text'
                               className='form-control'
                               placeholder='Type list name here'
