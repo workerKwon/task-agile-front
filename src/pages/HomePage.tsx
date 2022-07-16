@@ -21,7 +21,7 @@ function HomePage() {
     navigate(`/board/${board.id}`)
   }
 
-  const createBoard = (team: Team) => {
+  const createBoard = (team?: Team) => {
     setSelectedTeamId(team ? team.id : 0)
     $('#createBoardModal').modal('show')
   }
@@ -55,7 +55,7 @@ function HomePage() {
               <div
                 id='createPersonalBoardBtn'
                 className='board add list-inline-item'
-                onClick={() => createBoard}
+                onClick={() => createBoard()}
               >
                 <FontAwesomeIcon icon='plus' />
                 <div>{t('homePage.createNewBoard')}</div>
