@@ -3,7 +3,6 @@ import PageHeader from '../components/PageHeader'
 import AddMemberModal from '../modals/AddMemberModal'
 import CardModal from '../modals/CardModal'
 import {
-  FormEvent,
   KeyboardEvent,
   useEffect,
   useLayoutEffect,
@@ -36,7 +35,8 @@ const BoardPage = () => {
   const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
   const [addListForm, setAddListForm] = useState(false)
   const [cardsEvent, setCardsEvent] = useState<SortableEvent>()
-  const { register, handleSubmit, reset } = useForm<{ name: string }>()
+  const { register: cardListRegister, handleSubmit: cardListHandleSubmit, reset: resetCardList } = useForm<{ name: string }>()
+  const { register: cardRegister, handleSubmit: cardHandleSubmit, getValues, reset: resetCard } = useForm<{title: string}>()
 
   const focusedCardList = useMemo(() => {
     return cardLists.filter((cardList) => cardList.id === openedCard.cardListId)[0] || {}
@@ -143,55 +143,62 @@ const BoardPage = () => {
     $('#cardModal').modal('show')
   }
 
-  const addCard = (cardList: AddedCardList) => {
-    if (!cardList.cardForm.title.trim()) return
+  const addCard = (cardListIndex: number) => {
+    if (!cardLists[cardListIndex].cardForm.title.trim()) return
 
     const card = {
       boardId: board.id,
-      cardListId: cardList.id,
-      title: cardList.cardForm.title,
-      position: cardList.cards.length + 1
+      cardListId: cardLists[cardListIndex].id,
+      title: cardLists[cardListIndex].cardForm.title,
+      position: cardLists[cardListIndex].cards.length + 1
     }
-    cardService
-      .add(card)
+    cardService.add(card)
       .then((savedCard) => {
-        appendCardToList(cardList, savedCard)
-        cardList.cardForm.title = ''
-        focusCardForm(cardList)
+        appendCardToList(cardListIndex, savedCard)
+        resetCard()
+        focusCardForm(cardLists[cardListIndex])
       })
       .catch((error) => {
         notify.error(error.message)
       })
   }
 
-  const appendCardToList = (cardList: AddedCardList, card: Card) => {
-    const existingIndex = cardList.cards.findIndex((existingCard) => existingCard.id === card.id)
+  const appendCardToList = (cardListIndex: number, card: Card) => {
+    const existingIndex = cardLists[cardListIndex].cards.findIndex((existingCard) => existingCard.id === card.id)
     if (existingIndex === -1) {
-      cardList.cards.push({
-        id: card.id,
-        title: card.title,
-        coverImage: ''
+      setCardLists(oldCardLists => {
+        const temp = [...oldCardLists]
+        temp[cardListIndex].cards.push({
+          id: card.id,
+          title: card.title,
+          coverImage: ''
+        })
+        return temp
       })
     }
   }
 
+  useLayoutEffect(() => {
+    setCardLists(cardLists)
+  }, [cardLists])
+
   const focusCardForm = (cardList: AddedCardList) => {
-    // this.$nexTick(() => {
-    // useLayoutEffect(() => {
     $('#cardTitle' + cardList.id).trigger('focus')
-    // })
-    // })
   }
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>, cardList: AddedCardList) => {
-    e.preventDefault()
-    addCard(cardList)
+  const onSubmit = (title : string, cardListIndex: number) => {
+    setCardLists(oldCardLists => {
+      const temp = [...oldCardLists]
+      temp[cardListIndex].cardForm.title = title
+      return temp
+    })
+    addCard(cardListIndex)
   }
 
-  const onKeyDownEnter = (e: KeyboardEvent<HTMLTextAreaElement>, cardList: AddedCardList) => {
-    e.preventDefault()
-    if (e.key === 'enter') {
-      addCard(cardList)
+  const onKeyDownEnter = (e: KeyboardEvent<HTMLTextAreaElement>, cardListIndex: number) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      onSubmit(getValues('title'), cardListIndex)
     }
   }
 
@@ -280,14 +287,22 @@ const BoardPage = () => {
       })
   }
 
-  const openAddCardForm = (cardList: AddedCardList) => {
-    cardLists.forEach(cardList => {cardList.cardForm.open = false})
-    cardList.cardForm.open = true
+  const openAddCardForm = async (cardList: AddedCardList, cardListIndex: number) => {
+    await setCardLists(oldCardLists => {
+      const temp = [...oldCardLists]
+      temp.map(oldCardList => oldCardList.cardForm.open = false)
+      temp[cardListIndex].cardForm.open = true
+      return temp
+    })
     focusCardForm(cardList)
   }
 
-  const closeAddCardForm = (cardList: AddedCardList) => {
-    cardList.cardForm.open = false
+  const closeAddCardForm = (cardListIndex: number) => {
+    setCardLists(cardLists => {
+      const temp = [...cardLists]
+      temp[cardListIndex].cardForm.open = false
+      return temp
+    })
   }
 
   const openAddListForm = () => {
@@ -300,7 +315,7 @@ const BoardPage = () => {
 
   const closeAddListForm = () => {
     setAddListForm(false)
-    reset()
+    resetCardList()
   }
 
   const onMemberAdded = (member: { id: number; name: string; shortName: string }) => {
@@ -398,7 +413,6 @@ const BoardPage = () => {
                     touchStartThreshold={20}
                     onEnd={() => {
                       isCardListsSortingRef.current = true
-
                     }}
                   >
                     {cardLists.map((cardList, cardListIndex) => (
@@ -433,16 +447,15 @@ const BoardPage = () => {
                                 <div className='add-card-form-wrapper'>
                                   <form
                                     className='add-card-form'
-                                    onSubmit={(e) => onSubmit(e, cardList)}
+                                    onSubmit={cardHandleSubmit(({ title }) => onSubmit(title, cardListIndex))}
                                   >
                                     <div className='form-group'>
                                       <textarea
                                         id={'cardTitle' + cardList.id}
-                                        value={cardList.cardForm.title}
+                                        {...cardRegister('title', { required: true })}
                                         className='form-control'
                                         placeholder='Type card title here'
-                                        onKeyDown={(e) => onKeyDownEnter(e, cardList)}
-                                        // onkeydown.enter.prevent={addCard(cardList)}
+                                        onKeyDown={(e) => onKeyDownEnter(e, cardListIndex)}
                                       />
                                     </div>
                                     <button type='submit' className='btn btn-sm btn-primary'>
@@ -451,7 +464,7 @@ const BoardPage = () => {
                                     <button
                                       type='button'
                                       className='btn btn-sm btn-link btn-cancel'
-                                      onClick={() => closeAddCardForm(cardList)}
+                                      onClick={() => closeAddCardForm(cardListIndex)}
                                     >
                                     Cancel
                                     </button>
@@ -463,7 +476,7 @@ const BoardPage = () => {
                           {!cardList.cardForm.open && (
                             <div
                               className='add-card-button'
-                              onClick={() => openAddCardForm(cardList)}
+                              onClick={() => openAddCardForm(cardList, cardListIndex)}
                             >
                               + Add a card
                             </div>
@@ -478,11 +491,11 @@ const BoardPage = () => {
                         </div>
                       )}
                       {addListForm === true && (
-                        <form className='add-list-form' onSubmit={handleSubmit(addCardList)}>
+                        <form className='add-list-form' onSubmit={cardListHandleSubmit(addCardList)}>
                           <div className='form-group'>
                             <input
                               id='cardListName'
-                              {...register('name', { required: true })}
+                              {...cardListRegister('name', { required: true })}
                               type='text'
                               className='form-control'
                               placeholder='Type list name here'
