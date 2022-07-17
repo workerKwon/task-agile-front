@@ -51,7 +51,7 @@ const BoardPage = () => {
     loadInitial()
     window.addEventListener('click', (e) => dismissActiveForms(e))
     $('#cardModal').on('hide.bs.modal', () => {
-      navigate('/board', { state: { boardId: board.id } })
+      navigate(`/board/${board.id}`)
     })
   }, [])
 
@@ -178,7 +178,7 @@ const BoardPage = () => {
     }
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setCardLists(cardLists)
   }, [cardLists])
 
@@ -201,11 +201,6 @@ const BoardPage = () => {
       onSubmit(getValues('title'), cardListIndex)
     }
   }
-
-  // const openCard = (card: any) => {
-  //   const cardTitle = card.title.toLowerCase().trim().replace(/\s/g, '-')
-  //   navigate('/card', { state: { cardId: card.id, cardTitle } })
-  // }
 
   function addCardList(formData: { name: string }) {
     const cardList = {
@@ -536,14 +531,22 @@ const BoardPage = () => {
 export default BoardPage
 
 function CardComponent({ cardList } : {cardList : AddedCardList}) {
+
+  const navigate = useNavigate()
+
+  const openCard = (card: any) => {
+    const cardTitle = card.title.toLowerCase().trim().replace(/\s/g, '-')
+    navigate(`/card/${card.id}/${cardTitle}`)
+  }
+
   const component = cardList.cards.map((card) =>{
     return (
       <div
         key={card.id}
         className='card-item'
-      // onClick={() => openCard(card)}
+        onClick={() => openCard(card)}
       >
-        {card.coverImage != null && (
+        {card.coverImage.length > 0 && (
           <div className='cover-image'>
             <img src={card.coverImage} alt={'image'} />
           </div>
