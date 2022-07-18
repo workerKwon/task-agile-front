@@ -1,5 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { KeyboardEvent } from 'react'
+import { KeyboardEvent, useEffect, useState } from 'react'
+import autosize from 'autosize'
+import cardService from '../services/card/card'
+import { useParams } from 'react-router-dom'
+import notify from '../utils/notify'
 
 const CardModal = (props: {
   card: { cardListId?: number }
@@ -15,6 +19,17 @@ const CardModal = (props: {
 }) => {
   props
 
+  const [editingDescription, setEditingDescription] = useState(false)
+  const [newComment, setNewComment] = useState('')
+  const [activities, setActivities] = useState([])
+  const [title, setTitle] = useState('')
+  const [assignees, setAssignees] = useState([])
+  const [description, setDescription] = useState('')
+  const [attachments, setAttachments] = useState([])
+  const [uploadingCount, setUploadingCount] = useState(0)
+
+  const { cardId } = useParams()
+
   function changeCardTitle(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -22,19 +37,34 @@ const CardModal = (props: {
   }
 
   function showEditDescription() {
-
+    setEditingDescription(true)
   }
 
-  function changeCardDescription() {
+  useEffect(() => {
+    $('#cardDescription').focus()
+    autosize.update($('.auto-size'))
+  }, [editingDescription])
 
+  function changeCardDescription() {
+    cardService.changeCardDescription(cardId, description).then(() => {
+      // this.$emit('descriptionChanged', { cardId: this.cardId, description: this.description })
+      setEditingDescription(false)
+    }).catch(error => {
+      notify.error(error.message)
+    })
   }
 
   function cancelEditDescription() {
-
+    setEditingDescription(false)
   }
 
   function addComment() {
-
+    cardService.addCardComment(cardId, newComment).then(commentActivity => {
+      setNewComment('')
+      setActivities([...activities, commentActivity])
+    }).catch(error => {
+      notify.error(error.message)
+    })
   }
 
   return <>

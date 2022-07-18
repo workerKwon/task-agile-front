@@ -38,5 +38,23 @@ export default {
           reject(error)
         })
     })
+  },
+  changeCardDescription (cardId: string, description: string) {
+    return new Promise((resolve, reject) => {
+      axios.put('/cards/' + cardId + '/description', { description }).then(({ data }) => {
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  addCardComment (cardId, comment) {
+    return new Promise((resolve, reject) => {
+      axios.post('/cards/' + cardId + '/comments', { comment }).then(({ data }) => {
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
   }
 }

@@ -31,9 +31,11 @@
     "react-router-dom": "^6.3.0",
     "react-sortablejs": "^6.1.4",
     "recoil": "^0.7.3",
-    "sortablejs": "^1.15.0"
+    "sortablejs": "^1.15.0",
+    "autosize": "^5.0.1"
   },
   "devDependencies": {
+    "@types/autosize": "^4.0.1",
     "@types/bootstrap": "^5.1.12",
     "@types/jquery": "^3.5.14",
     "@types/react": "^18.0.0",
