@@ -39,7 +39,7 @@ export default {
         })
     })
   },
-  changeCardDescription (cardId: string, description: string) {
+  changeCardDescription (cardId: string | undefined, description: string) {
     return new Promise((resolve, reject) => {
       axios.put('/cards/' + cardId + '/description', { description }).then(({ data }) => {
         resolve(data)
@@ -48,7 +48,7 @@ export default {
       })
     })
   },
-  addCardComment (cardId, comment) {
+  addCardComment (cardId: string | undefined, comment: string) {
     return new Promise((resolve, reject) => {
       axios.post('/cards/' + cardId + '/comments', { comment }).then(({ data }) => {
         resolve(data)

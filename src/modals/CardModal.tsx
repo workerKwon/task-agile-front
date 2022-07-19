@@ -4,10 +4,35 @@ import autosize from 'autosize'
 import cardService from '../services/card/card'
 import { useParams } from 'react-router-dom'
 import notify from '../utils/notify'
+import { formatDistance } from 'date-fns'
 import showdown from 'showdown'
 
 showdown.setOption('strikethrough', true)
 showdown.setOption('tables', true)
+
+interface Attachment {
+  id: number
+  previewUrl: string
+  fileType: string
+  fileName: string
+  fileUrl: string
+  createdDate: any
+}
+
+interface Activity {
+  userId: number
+  detail: string
+  type: string
+  createdDate: any
+}
+
+interface CardActivity {
+  type: string
+  user: any
+  actionDetail: string
+  when: string
+  createdDate: any
+}
 
 const CardModal = (props: {
   card: { cardListId?: number }
@@ -25,7 +50,7 @@ const CardModal = (props: {
 
   const [editingDescription, setEditingDescription] = useState(false)
   const [newComment, setNewComment] = useState('')
-  const [activities, setActivities] = useState([])
+  const [activities, setActivities] = useState<Activity[]>([])
   const [title, setTitle] = useState('')
   const [assignees, setAssignees] = useState([])
   const [description, setDescription] = useState('')
@@ -40,6 +65,56 @@ const CardModal = (props: {
     }
     return markdownConverter.makeHtml(description)
   }, [description])
+
+  const computedCardAttachments = useMemo(() => {
+    const cardAttachments: Attachment[] = []
+    attachments.forEach(attachment => {
+      cardAttachments.push(attachment)
+    })
+    return cardAttachments.sort((prev, curr) => {
+      return curr.createdDate - prev.createdDate
+    })
+  }, [attachments])
+
+  const computedCardActivities = useMemo(() => {
+    if (!props.members.length || !activities.length) {
+      return []
+    }
+    const userById: any = {}
+    props.members.forEach(member => {
+      userById[member.id] = member
+    })
+    const cardActivities: CardActivity[] = []
+    const now = new Date()
+    activities.forEach(activity => {
+      const detail = JSON.parse(activity.detail)
+
+      let actionDetail = ''
+      if (activity.type === 'add-comment') {
+        actionDetail = detail.comment
+      } else if (activity.type === 'add-card') {
+        actionDetail = 'Added this card'
+      } else if (activity.type === 'add-attachment') {
+        actionDetail = 'Added attachment ' + detail.fileName
+      } else if (activity.type === 'change-card-description') {
+        actionDetail = 'Changed card description'
+      } else if (activity.type === 'change-card-title') {
+        actionDetail = 'Changed card title'
+      }
+
+      cardActivities.push({
+        user: userById[activity.userId],
+        type: activity.type,
+        actionDetail: actionDetail,
+        when: formatDistance(new Date(activity.createdDate), now),
+        createdDate: activity.createdDate
+      })
+    })
+    cardActivities.sort((a1, a2) => {
+      return a2.createdDate - a1.createdDate
+    })
+    return cardActivities
+  }, [])
 
   function changeCardTitle(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
@@ -76,6 +151,10 @@ const CardModal = (props: {
     }).catch(error => {
       notify.error(error.message)
     })
+  }
+
+  function when(createdDate: any) {
+    return formatDistance(new Date(createdDate), new Date())
   }
 
   return <>
@@ -185,33 +264,34 @@ const CardModal = (props: {
                     </div>
                   }
                   <ul className="list-unstyled">
-                    <li
-                      v-for="attachment in cardAttachments"
-                      key={attachment.id}
-                      className="media"
-                    >
-                      <div className="mr-3">
-                        {attachment.previewUrl &&
-                          <div className="preview thumbnail">
-                            <img src={attachment.previewUrl} />
+                    {computedCardAttachments.map((attachment) =>
+                      (
+                        <li key={attachment.id} className="media">
+                          <div className="mr-3">
+                            {attachment.previewUrl &&
+                              <div className="preview thumbnail">
+                                <img src={attachment.previewUrl} />
+                              </div>
+                            }
+                            {!attachment.previewUrl &&
+                              <div className="preview file-type">
+                                {attachment.fileType}
+                              </div>
+                            }
                           </div>
-                        }
-                        {!attachment.previewUrl &&
-                          <div className="preview file-type">
-                            {attachment.fileType}
+                          <div className="media-body">
+                            <h6 className="mt-0 mb-1">
+                              <a
+                                href={attachment.fileUrl}
+                                target="_blank" rel="noreferrer"
+                              >{attachment.fileName}</a>
+                            </h6>
+                            <p className="when">Added {when(attachment.createdDate)}</p>
                           </div>
-                        }
-                      </div>
-                      <div className="media-body">
-                        <h6 className="mt-0 mb-1">
-                          <a
-                            href={attachment.fileUrl}
-                            target="_blank" rel="noreferrer"
-                          >{attachment.fileName}</a>
-                        </h6>
-                        <p className="when">Added {when(attachment.createdDate)}</p>
-                      </div>
-                    </li>
+                        </li>
+                      )
+                    )
+                    }
                   </ul>
                 </div>
               </div>
@@ -252,19 +332,20 @@ const CardModal = (props: {
                   <span>Activities</span>
                 </h5>
                 <div className="wrapper-body">
-                  <div
-                    v-for="activity in cardActivities"
-                    key={activity.id}
-                    className="activity"
-                  >
-                    <div><strong>{activity.user.name}</strong> <span className="when">{activity.when} ago</span></div>
+                  {computedCardActivities.map((cardActivity, index) => (
                     <div
-                      className={'detail'}
-                      className={activity.type}
+                      key={index}
+                      className="activity"
                     >
-                      {activity.actionDetail}
+                      <div><strong>{cardActivity.user.name}</strong> <span className="when">{cardActivity.when} ago</span></div>
+                      <div
+                        className={'detail ' + cardActivity.type}
+                      >
+                        {cardActivity.actionDetail}
+                      </div>
                     </div>
-                  </div>
+                  )
+                  )}
                 </div>
               </div>
             </div>
