@@ -1,9 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { KeyboardEvent, useEffect, useState } from 'react'
+import { KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import autosize from 'autosize'
 import cardService from '../services/card/card'
 import { useParams } from 'react-router-dom'
 import notify from '../utils/notify'
+import showdown from 'showdown'
+
+showdown.setOption('strikethrough', true)
+showdown.setOption('tables', true)
 
 const CardModal = (props: {
   card: { cardListId?: number }
@@ -17,7 +21,7 @@ const CardModal = (props: {
   members: { id: number; name: string; shortName: string }[]
   onCoverImageChanged: () => void
 }) => {
-  props
+  const markdownConverter = new showdown.Converter()
 
   const [editingDescription, setEditingDescription] = useState(false)
   const [newComment, setNewComment] = useState('')
@@ -29,6 +33,13 @@ const CardModal = (props: {
   const [uploadingCount, setUploadingCount] = useState(0)
 
   const { cardId } = useParams()
+
+  const computedDescriptionHtml = useMemo(() => {
+    if (!description) {
+      return ''
+    }
+    return markdownConverter.makeHtml(description)
+  }, [description])
 
   function changeCardTitle(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
@@ -138,8 +149,7 @@ const CardModal = (props: {
                     <button
                       type="submit"
                       className="btn btn-primary"
-                    >
-              Save
+                    >Save
                     </button>
                     <span
                       className="btn btn-link btn-cancel"
@@ -151,7 +161,7 @@ const CardModal = (props: {
                   {(description && !editingDescription) &&
                     <div
                       className="description"
-                      htmlFor="descriptionHtml"
+                      dangerouslySetInnerHTML={{ __html: computedDescriptionHtml }}
                     />
                   }
                 </div>
@@ -199,9 +209,7 @@ const CardModal = (props: {
                             target="_blank" rel="noreferrer"
                           >{attachment.fileName}</a>
                         </h6>
-                        <p className="when">
-            Added {when(attachment.createdDate)}
-                        </p>
+                        <p className="when">Added {when(attachment.createdDate)}</p>
                       </div>
                     </li>
                   </ul>
@@ -230,8 +238,7 @@ const CardModal = (props: {
                       type="submit"
                       className="btn btn-primary"
                       disabled={!newComment}
-                    >
-      Save
+                    >Save
                     </button>
                   </form>
                 </div>
