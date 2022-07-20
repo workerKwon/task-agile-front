@@ -27,6 +27,14 @@ declare global {
     shortName: string
   }
 
+  interface Activity {
+    id: number
+    userId: number
+    detail: string
+    type: string
+    createdDate: any
+  }
+
   interface CardList {
     id: number
     name: string

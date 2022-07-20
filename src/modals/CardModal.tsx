@@ -19,13 +19,6 @@ interface Attachment {
   createdDate: any
 }
 
-interface Activity {
-  userId: number
-  detail: string
-  type: string
-  createdDate: any
-}
-
 interface CardActivity {
   type: string
   user: any

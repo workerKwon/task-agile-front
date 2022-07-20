@@ -49,7 +49,7 @@ export default {
     })
   },
   addCardComment (cardId: string | undefined, comment: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<Activity>((resolve, reject) => {
       axios.post('/cards/' + cardId + '/comments', { comment }).then(({ data }) => {
         resolve(data)
       }).catch(error => {
