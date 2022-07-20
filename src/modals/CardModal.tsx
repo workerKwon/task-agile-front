@@ -2,22 +2,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import autosize from 'autosize'
 import cardService from '../services/card/card'
-import { useParams } from 'react-router-dom'
 import notify from '../utils/notify'
 import { formatDistance } from 'date-fns'
 import showdown from 'showdown'
 
 showdown.setOption('strikethrough', true)
 showdown.setOption('tables', true)
-
-interface Attachment {
-  id: number
-  previewUrl: string
-  fileType: string
-  fileName: string
-  fileUrl: string
-  createdDate: any
-}
 
 interface CardActivity {
   type: string
@@ -28,7 +18,12 @@ interface CardActivity {
 }
 
 const CardModal = (props: {
-  card: { cardListId?: number }
+  card: {
+    id: number
+    title: string
+    description: string
+    cardListId?: number
+  }
   cardList: {
     id: number
     name: string
@@ -47,10 +42,9 @@ const CardModal = (props: {
   const [title, setTitle] = useState('')
   const [assignees, setAssignees] = useState([])
   const [description, setDescription] = useState('')
-  const [attachments, setAttachments] = useState([])
+  const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploadingCount, setUploadingCount] = useState(0)
-
-  const { cardId } = useParams()
+  const [cardId, setCardId] = useState(0)
 
   const computedDescriptionHtml = useMemo(() => {
     if (!description) {
@@ -68,6 +62,41 @@ const CardModal = (props: {
       return curr.createdDate - prev.createdDate
     })
   }, [attachments])
+
+  useEffect(() => {
+    setCardId(props.card.id)
+    setTitle(props.card.title)
+    setDescription(props.card.description)
+  }, [props.card])
+
+  useEffect(() => {
+    setTimeout(() => {
+      autosize($('.auto-size'))
+    }, 0)
+    $('#cardModal').on('show.bs.modal', () => {
+      setTimeout(() => {
+        autosize.update($('.auto-size'))
+      }, 0)
+      loadActivities()
+      loadAttachments()
+    })
+  })
+
+  function loadActivities () {
+    cardService.getCardActivities(cardId).then(({ activities }) => {
+      setActivities(activities)
+    }).catch(error => {
+      notify.error(error.message)
+    })
+  }
+
+  function loadAttachments () {
+    cardService.getCardAttachments(cardId).then(({ attachments }) => {
+      setAttachments(attachments)
+    }).catch(error => {
+      notify.error(error.message)
+    })
+  }
 
   const computedCardActivities = useMemo(() => {
     if (!props.members.length || !activities.length) {

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import errorParser from '../../utils/error-parser'
 
 type AddCard = {
   boardId: number
@@ -39,7 +40,7 @@ export default {
         })
     })
   },
-  changeCardDescription (cardId: string | undefined, description: string) {
+  changeCardDescription (cardId: number, description: string) {
     return new Promise((resolve, reject) => {
       axios.put('/cards/' + cardId + '/description', { description }).then(({ data }) => {
         resolve(data)
@@ -48,12 +49,30 @@ export default {
       })
     })
   },
-  addCardComment (cardId: string | undefined, comment: string) {
+  addCardComment (cardId: number, comment: string) {
     return new Promise<Activity>((resolve, reject) => {
       axios.post('/cards/' + cardId + '/comments', { comment }).then(({ data }) => {
         resolve(data)
       }).catch(error => {
         reject(error)
+      })
+    })
+  },
+  getCardActivities (cardId: number) {
+    return new Promise<{ activities: Activity[] }>((resolve, reject) => {s
+      axios.get('/cards/' + cardId + '/activities').then(({ data }) => {
+        resolve(data)
+      }).catch(error => {
+        reject(errorParser.parse(error))
+      })
+    })
+  },
+  getCardAttachments (cardId: number) {
+    return new Promise<{ attachments: Attachment[] }>((resolve, reject) => {
+      axios.get('/cards/' + cardId + '/attachments').then(({ data }) => {
+        resolve(data)
+      }).catch(error => {
+        reject(errorParser.parse(error))
       })
     })
   }

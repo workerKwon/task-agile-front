@@ -35,6 +35,15 @@ declare global {
     createdDate: any
   }
 
+  interface Attachment {
+    id: number
+    previewUrl: string
+    fileType: string
+    fileName: string
+    fileUrl: string
+    createdDate: any
+  }
+
   interface CardList {
     id: number
     name: string
