@@ -5,6 +5,7 @@ import cardService from '../services/card/card'
 import notify from '../utils/notify'
 import { formatDistance } from 'date-fns'
 import showdown from 'showdown'
+import './stylesheet/cardmodal.scss'
 
 showdown.setOption('strikethrough', true)
 showdown.setOption('tables', true)
