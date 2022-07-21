@@ -41,7 +41,7 @@ export default {
     })
   },
   changeCardDescription (cardId: number, description: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<{cardId: number, description: string}>((resolve, reject) => {
       axios.put('/cards/' + cardId + '/description', { description }).then(({ data }) => {
         resolve(data)
       }).catch(error => {
@@ -59,7 +59,7 @@ export default {
     })
   },
   getCardActivities (cardId: number) {
-    return new Promise<{ activities: Activity[] }>((resolve, reject) => {s
+    return new Promise<{ activities: Activity[] }>((resolve, reject) => {
       axios.get('/cards/' + cardId + '/activities').then(({ data }) => {
         resolve(data)
       }).catch(error => {

@@ -376,6 +376,10 @@ const BoardPage = () => {
     }
   }, [cardLists])
 
+  function updateCardDescription(data: { cardId: number; description: string }) {
+    console.log(data)
+  }
+
   return (
     <>
       {board.id != null && (
@@ -529,6 +533,7 @@ const BoardPage = () => {
             board={board}
             members={members}
             onCoverImageChanged={() => updateCardCoverImage}
+            onDescriptionChanged={(data) => updateCardDescription(data)}
           />
         </div>
       )}

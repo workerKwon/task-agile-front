@@ -29,6 +29,7 @@ const CardModal = (props: {
   board: { id: number; name: string; personal: boolean }
   members: { id: number; name: string; shortName: string }[]
   onCoverImageChanged: () => void
+  onDescriptionChanged: ({ cardId, description }: {cardId: number, description: string}) => void
 }) => {
   const markdownConverter = new showdown.Converter()
 
@@ -151,7 +152,7 @@ const CardModal = (props: {
 
   function changeCardDescription() {
     cardService.changeCardDescription(cardId, description).then(() => {
-      // this.$emit('descriptionChanged', { cardId: this.cardId, description: this.description })
+      props.onDescriptionChanged({ cardId, description })
       setEditingDescription(false)
     }).catch(error => {
       notify.error(error.message)
