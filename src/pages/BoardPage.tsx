@@ -32,7 +32,15 @@ const BoardPage = () => {
   const [team, setTeam] = useState({ name: '' })
   const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
-  const [openedCard, setOpenedCard] = useState<{ cardListId?: number }>({})
+  const [openedCard, setOpenedCard] = useState<Card>({
+    boardId: '',
+    cardListId: 0,
+    coverImage: '',
+    description: '',
+    id: 0,
+    position: 0,
+    title: ''
+  })
   const [addListForm, setAddListForm] = useState(false)
   const [cardsEvent, setCardsEvent] = useState<SortableEvent>()
   const { register: cardListRegister, handleSubmit: cardListHandleSubmit, reset: resetCardList } = useForm<{ name: string }>()

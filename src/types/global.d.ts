@@ -57,6 +57,7 @@ declare global {
     title: string
     boardId: string
     cardListId: number
+    description: string
     coverImage: string
     position: number
   }

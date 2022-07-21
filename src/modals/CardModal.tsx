@@ -19,12 +19,7 @@ interface CardActivity {
 }
 
 const CardModal = (props: {
-  card: {
-    id: number
-    title: string
-    description: string
-    cardListId?: number
-  }
+  card: Card
   cardList: {
     id: number
     name: string
