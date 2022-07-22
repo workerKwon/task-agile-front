@@ -380,6 +380,10 @@ const BoardPage = () => {
     console.log(data)
   }
 
+  function updateCardTitle(data: { cardId: number; title: string }) {
+    console.log(data)
+  }
+
   return (
     <>
       {board.id != null && (
@@ -534,6 +538,7 @@ const BoardPage = () => {
             members={members}
             onCoverImageChanged={() => updateCardCoverImage}
             onDescriptionChanged={(data) => updateCardDescription(data)}
+            onTitleChanged={(data) => updateCardTitle(data)}
           />
         </div>
       )}

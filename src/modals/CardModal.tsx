@@ -6,6 +6,7 @@ import notify from '../utils/notify'
 import { formatDistance } from 'date-fns'
 import showdown from 'showdown'
 import './stylesheet/cardmodal.scss'
+import $ from 'jquery'
 
 showdown.setOption('strikethrough', true)
 showdown.setOption('tables', true)
@@ -30,6 +31,7 @@ const CardModal = (props: {
   members: { id: number; name: string; shortName: string }[]
   onCoverImageChanged: () => void
   onDescriptionChanged: ({ cardId, description }: {cardId: number, description: string}) => void
+  onTitleChanged: ({cardId, title} : {cardId: number, title: string}) => void
 }) => {
   const markdownConverter = new showdown.Converter()
 
@@ -37,7 +39,7 @@ const CardModal = (props: {
   const [newComment, setNewComment] = useState('')
   const [activities, setActivities] = useState<Activity[]>([])
   const [title, setTitle] = useState('')
-  const [assignees, setAssignees] = useState([])
+  const [assignees] = useState([])
   const [description, setDescription] = useState('')
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploadingCount, setUploadingCount] = useState(0)
@@ -138,6 +140,12 @@ const CardModal = (props: {
   function changeCardTitle(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
       event.preventDefault()
+      cardService.changeCardTitle(cardId, title).then(() => {
+        props.onTitleChanged({cardId, title})
+        $('#cardModal').focus()
+      }).catch(error => {
+        notify.error(error.message)
+      })
     }
   }
 
@@ -198,9 +206,9 @@ const CardModal = (props: {
               <textarea
                 id="cardTitle"
                 value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="auto-size"
                 onKeyDown={(e) => changeCardTitle(e)}
-              // keydown.enter.prevent="changeCardTitle"
               />
               <div className="meta-card-list">
               in list {props.cardList.name}
@@ -241,6 +249,7 @@ const CardModal = (props: {
                       <textarea
                         id="cardDescription"
                         value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         className="auto-size"
                       />
                     </div>
@@ -330,6 +339,7 @@ const CardModal = (props: {
                     <div className="form-group">
                       <textarea
                         value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Add a comment here"
                       />
                     </div>

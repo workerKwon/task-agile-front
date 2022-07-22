@@ -75,5 +75,14 @@ export default {
         reject(errorParser.parse(error))
       })
     })
-  }
+  },
+  changeCardTitle (cardId: number, title: string) {
+    return new Promise((resolve, reject) => {
+      axios.put('/cards/' + cardId + '/title', { title }).then(({ data }) => {
+        resolve(data)
+      }).catch(error => {
+        reject(errorParser.parse(error))
+      })
+    })
+  },
 }
