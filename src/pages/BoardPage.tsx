@@ -15,7 +15,7 @@ import cardService from '../services/card/card'
 import $ from 'jquery'
 import notify from '../utils/notify'
 import './stylesheet/board.scss'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import boardService from '../services/board/board'
 import cardListService from '../services/cardList/card-lists'
 import { useForm } from 'react-hook-form'
@@ -52,7 +52,41 @@ const BoardPage = () => {
 
   const navigate = useNavigate()
 
+  const location = useLocation()
+
   const { cardId, boardId } = useParams()
+
+  const fromRouteRef = useRef(location.pathname)
+  // const fromBoardIdRef = useRef(boardId)
+
+  useEffect(() => {
+    console.log(fromRouteRef)
+    if (location.pathname.match('board') && fromRouteRef.current.match('board')) {
+      // unsubscribeFromRealTimeUpdate(fromBoardIdRef.current)
+      loadBoard(boardId)
+    }
+
+    if (location.pathname.match('card') && fromRouteRef.current.match('board')) {
+      loadCard(cardId).then(() => {
+        openCardWindow()
+      })
+    }
+
+    if (location.pathname.match('board') && fromRouteRef.current.match('card')) {
+      closeCardWindow()
+      setOpenedCard({
+        boardId: '',
+        cardListId: 0,
+        coverImage: '',
+        description: '',
+        id: 0,
+        position: 0,
+        title: ''
+      })
+    }
+
+    fromRouteRef.current = location.pathname
+  }, [location])
 
   useEffect(() => {
     console.log('[BoardPage] mounted')
@@ -149,6 +183,10 @@ const BoardPage = () => {
 
   const openCardWindow = () => {
     $('#cardModal').modal('show')
+  }
+
+  const closeCardWindow = () => {
+    $('#cardModal').modal('hide')
   }
 
   const addCard = (cardListIndex: number) => {
