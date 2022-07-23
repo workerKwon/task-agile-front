@@ -25,7 +25,7 @@ export default {
         })
     })
   },
-  getBoard(boardId: string | undefined) {
+  getBoard(boardId: number | string | undefined) {
     return new Promise<GetBoard>((resolve, reject) => {
       axios.get('/boards/' + boardId).then(({ data }) => {
         resolve(data)

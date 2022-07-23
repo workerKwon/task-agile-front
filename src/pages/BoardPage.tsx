@@ -33,7 +33,7 @@ const BoardPage = () => {
   const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
   const [openedCard, setOpenedCard] = useState<Card>({
-    boardId: '',
+    boardId: 0,
     cardListId: 0,
     coverImage: '',
     description: '',
@@ -75,7 +75,7 @@ const BoardPage = () => {
     if (location.pathname.match('board') && fromRouteRef.current.match('card')) {
       closeCardWindow()
       setOpenedCard({
-        boardId: '',
+        boardId: 0,
         cardListId: 0,
         coverImage: '',
         description: '',
@@ -92,10 +92,13 @@ const BoardPage = () => {
     console.log('[BoardPage] mounted')
     loadInitial()
     window.addEventListener('click', (e) => dismissActiveForms(e))
+  }, [])
+
+  useEffect(() => {
     $('#cardModal').on('hide.bs.modal', () => {
       navigate(`/board/${board.id}`)
     })
-  }, [])
+  })
 
   const loadInitial = () => {
     if (cardId) {
@@ -113,18 +116,13 @@ const BoardPage = () => {
     }
   }
 
-  const loadBoard = (boardId: string | undefined) => {
+  const loadBoard = (boardId: number | string | undefined) => {
     return new Promise<void>((resolve) => {
       boardService
         .getBoard(boardId)
         .then((data: { team: Team; board: Board; members: Member[]; cardLists: CardList[] }) => {
           setTeam({ ...team, name: data.team ? data.team.name : '' })
-          setBoard({
-            ...board,
-            id: data.board.id,
-            personal: data.board.personal,
-            name: data.board.name
-          })
+          setBoard({ id: data.board.id, name: data.board.name, personal: data.board.personal })
 
           members.splice(0)
 

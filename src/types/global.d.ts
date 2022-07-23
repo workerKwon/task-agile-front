@@ -55,7 +55,7 @@ declare global {
   interface Card {
     id: number
     title: string
-    boardId: string
+    boardId: number
     cardListId: number
     description: string
     coverImage: string

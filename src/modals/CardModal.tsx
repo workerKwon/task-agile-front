@@ -31,7 +31,7 @@ const CardModal = (props: {
   members: { id: number; name: string; shortName: string }[]
   onCoverImageChanged: () => void
   onDescriptionChanged: ({ cardId, description }: {cardId: number, description: string}) => void
-  onTitleChanged: ({cardId, title} : {cardId: number, title: string}) => void
+  onTitleChanged: ({ cardId, title } : {cardId: number, title: string}) => void
 }) => {
   const markdownConverter = new showdown.Converter()
 
@@ -141,7 +141,7 @@ const CardModal = (props: {
     if (event.key === 'Enter') {
       event.preventDefault()
       cardService.changeCardTitle(cardId, title).then(() => {
-        props.onTitleChanged({cardId, title})
+        props.onTitleChanged({ cardId, title })
         $('#cardModal').focus()
       }).catch(error => {
         notify.error(error.message)
@@ -190,7 +190,6 @@ const CardModal = (props: {
       className="modal"
       tabIndex={-1}
       role="dialog"
-      data-backdrop="static"
     >
       <div
         className="modal-dialog"
