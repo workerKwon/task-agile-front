@@ -97,7 +97,7 @@ const BoardPage = () => {
     $('#cardModal').on('hide.bs.modal', () => {
       navigate(`/board/${board.id}`)
     })
-  })
+  }, [board])
 
   const isCardListsSortingRef = useRef(false)
   const isCardsSortingRef = useRef(false)
