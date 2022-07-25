@@ -184,6 +184,10 @@ const CardModal = (props: {
     return formatDistance(new Date(createdDate), new Date())
   }
 
+  function close() {
+    $('#cardModal').modal('hide')
+  }
+
   return <>
     <div
       id="cardModal"
@@ -217,7 +221,7 @@ const CardModal = (props: {
               type="button"
               className="close"
               aria-label="Close"
-              onClick={close}
+              onClick={() => close()}
             >
               <span aria-hidden="true">&times;</span>
             </button>
