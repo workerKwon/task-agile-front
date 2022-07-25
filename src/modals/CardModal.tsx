@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { KeyboardEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import autosize from 'autosize'
 import cardService from '../services/card/card'
 import notify from '../utils/notify'
@@ -30,8 +30,8 @@ const CardModal = (props: {
   board: { id: number; name: string; personal: boolean }
   members: { id: number; name: string; shortName: string }[]
   onCoverImageChanged: () => void
-  onDescriptionChanged: ({ cardId, description }: {cardId: number, description: string}) => void
-  onTitleChanged: ({ cardId, title } : {cardId: number, title: string}) => void
+  onDescriptionChanged: ({ cardId, description }: { cardId: number, description: string }) => void
+  onTitleChanged: ({ cardId, title }: { cardId: number, title: string }) => void
 }) => {
   const markdownConverter = new showdown.Converter()
 
@@ -81,7 +81,7 @@ const CardModal = (props: {
     })
   })
 
-  function loadActivities () {
+  function loadActivities() {
     cardService.getCardActivities(cardId).then(({ activities }) => {
       setActivities(activities)
     }).catch(error => {
@@ -89,7 +89,7 @@ const CardModal = (props: {
     })
   }
 
-  function loadAttachments () {
+  function loadAttachments() {
     cardService.getCardAttachments(cardId).then(({ attachments }) => {
       setAttachments(attachments)
     }).catch(error => {
@@ -158,7 +158,8 @@ const CardModal = (props: {
     autosize.update($('.auto-size'))
   }, [editingDescription])
 
-  function changeCardDescription() {
+  function changeCardDescription(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     cardService.changeCardDescription(cardId, description).then(() => {
       props.onDescriptionChanged({ cardId, description })
       setEditingDescription(false)
@@ -246,7 +247,7 @@ const CardModal = (props: {
                   {editingDescription === true &&
                   <form
                     className="description-form"
-                    onSubmit={changeCardDescription}
+                    onSubmit={(e) => changeCardDescription(e)}
                   >
                     <div className="form-group">
                       <textarea
@@ -268,7 +269,7 @@ const CardModal = (props: {
                     <span className="format-support float-right">Support Markdown</span>
                   </form>
                   }
-                  {(description && !editingDescription) &&
+                  {(description !== null && !editingDescription) &&
                     <div
                       className="description"
                       dangerouslySetInnerHTML={{ __html: computedDescriptionHtml }}
@@ -276,7 +277,7 @@ const CardModal = (props: {
                   }
                 </div>
               </div>
-              {(attachments.length || uploadingCount) &&
+              {(attachments.length > 0 || uploadingCount > 0) &&
               <div className="wrapper attachments-wrapper">
                 <h5>
                   <FontAwesomeIcon
@@ -285,7 +286,7 @@ const CardModal = (props: {
                   /><span>Attachments</span>
                 </h5>
                 <div className="wrapper-body">
-                  {uploadingCount &&
+                  {uploadingCount > 0 &&
                     <div className="uploading">
                       <FontAwesomeIcon
                         icon="spinner"
@@ -299,7 +300,7 @@ const CardModal = (props: {
                       (
                         <li key={attachment.id} className="media">
                           <div className="mr-3">
-                            {attachment.previewUrl &&
+                            {attachment.previewUrl !== null &&
                               <div className="preview thumbnail">
                                 <img src={attachment.previewUrl} />
                               </div>

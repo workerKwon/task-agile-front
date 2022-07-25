@@ -23,7 +23,7 @@ import { useForm } from 'react-hook-form'
 interface AddedCardList {
   id: number
   name: string
-  cards: { id: number; title: string; coverImage: string }[]
+  cards: { id: number; title: string; coverImage: string; description?: string }[]
   cardForm: { open: boolean; title: string }
 }
 
@@ -60,7 +60,6 @@ const BoardPage = () => {
   // const fromBoardIdRef = useRef(boardId)
 
   useEffect(() => {
-    console.log(fromRouteRef)
     if (location.pathname.match('board') && fromRouteRef.current.match('board')) {
       // unsubscribeFromRealTimeUpdate(fromBoardIdRef.current)
       loadBoard(boardId)
@@ -99,6 +98,23 @@ const BoardPage = () => {
       navigate(`/board/${board.id}`)
     })
   })
+
+  const isCardListsSortingRef = useRef(false)
+  const isCardsSortingRef = useRef(false)
+
+  useEffect(() => {
+    if (!isCardListsSortingRef.current) return
+    isCardListsSortingRef.current = false
+    onCardListDragEnded()
+  }, [cardLists])
+
+  useEffect(() => {
+    if (!isCardsSortingRef.current) return
+    isCardsSortingRef.current = false
+    if (cardsEvent) {
+      onCardDragEnded(cardsEvent)
+    }
+  }, [cardLists])
 
   const loadInitial = () => {
     if (cardId) {
@@ -224,6 +240,7 @@ const BoardPage = () => {
 
   useEffect(() => {
     setCardLists(cardLists)
+    console.log(cardLists)
   }, [cardLists])
 
   const focusCardForm = (cardList: AddedCardList) => {
@@ -361,18 +378,6 @@ const BoardPage = () => {
     members.push(member)
   }
 
-  const updateCardCoverImage = (coverImageCard: { cardListId: number; cardId: number; coverImage: string }) => {
-    const cardList = cardLists.find(cardList => {
-      return cardList.id === coverImageCard.cardListId
-    })
-
-    const card = cardList?.cards.find(card => {
-      return card.id === coverImageCard.cardId
-    })
-
-    if(card !== undefined) card.coverImage = coverImageCard.coverImage
-  }
-
   const dismissActiveForms = (event: MouseEvent) => {
     console.log('[BoardPage] Dismissing forms')
     let dismissAddCardForm = true
@@ -395,29 +400,46 @@ const BoardPage = () => {
     }
   }
 
-  const isCardListsSortingRef = useRef(false)
-  const isCardsSortingRef = useRef(false)
+  const updateCardCoverImage = (coverImageCard: { cardListId: number; cardId: number; coverImage: string }) => {
+    const cardList = cardLists.find(cardList => {
+      return cardList.id === coverImageCard.cardListId
+    })
 
-  useEffect(() => {
-    if (!isCardListsSortingRef.current) return
-    isCardListsSortingRef.current = false
-    onCardListDragEnded()
-  }, [cardLists])
+    const card = cardList?.cards.find(card => {
+      return card.id === coverImageCard.cardId
+    })
 
-  useEffect(() => {
-    if (!isCardsSortingRef.current) return
-    isCardsSortingRef.current = false
-    if (cardsEvent) {
-      onCardDragEnded(cardsEvent)
-    }
-  }, [cardLists])
-
-  function updateCardDescription(data: { cardId: number; description: string }) {
-    console.log(data)
+    if(card !== undefined) card.coverImage = coverImageCard.coverImage
   }
 
-  function updateCardTitle(data: { cardId: number; title: string }) {
-    console.log(data)
+  function updateCardDescription({ cardId, description } : { cardId: number; description: string }) {
+    setCardLists(oldValue => {
+      const temp = [...oldValue]
+      temp.map(cl => {
+        cl.cards.map(c => {
+          if (c.id === cardId) {
+            c.description = description
+          }
+        })
+        return cl
+      })
+      return temp
+    })
+  }
+
+  function updateCardTitle({ cardId, title }: { cardId: number; title: string }) {
+    setCardLists(oldValue => {
+      const temp = [...oldValue]
+      temp.map(cl => {
+        cl.cards.map(c => {
+          if (c.id === cardId) {
+            c.title = title
+          }
+        })
+        return cl
+      })
+      return temp
+    })
   }
 
   return (
