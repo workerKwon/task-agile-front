@@ -79,7 +79,7 @@ const CardModal = (props: {
       loadActivities()
       loadAttachments()
     })
-  })
+  },[])
 
   function loadActivities() {
     cardService.getCardActivities(cardId).then(({ activities }) => {

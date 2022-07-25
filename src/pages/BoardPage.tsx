@@ -48,7 +48,7 @@ const BoardPage = () => {
 
   const focusedCardList = useMemo(() => {
     return cardLists.filter((cardList) => cardList.id === openedCard.cardListId)[0] || {}
-  }, [])
+  }, [openedCard])
 
   const navigate = useNavigate()
 
@@ -240,7 +240,6 @@ const BoardPage = () => {
 
   useEffect(() => {
     setCardLists(cardLists)
-    console.log(cardLists)
   }, [cardLists])
 
   const focusCardForm = (cardList: AddedCardList) => {
