@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   FormEvent,
   KeyboardEvent,
-  useEffect, useLayoutEffect,
+  useEffect,
   useMemo,
   useState
 } from 'react'

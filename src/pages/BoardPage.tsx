@@ -48,7 +48,7 @@ const BoardPage = () => {
 
   const { cardId, boardId } = useParams()
 
-  const fromRouteRef = useRef(location.pathname)
+  const fromRouteRef = useRef('')
   // const fromBoardIdRef = useRef(boardId)
 
   useEffect(() => {
