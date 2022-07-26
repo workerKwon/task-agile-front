@@ -30,7 +30,7 @@ interface AddedCardList {
 const BoardPage = () => {
   const [board, setBoard] = useState({ id: 0, name: '', personal: false })
   const [team, setTeam] = useState({ name: '' })
-  const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
+  const [members, setMembers] = useState<{ id: number; name: string; shortName: string }[]>([])
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
   const [openedCard, setOpenedCard] = useState<any>({})
   const [addListForm, setAddListForm] = useState(false)
@@ -40,7 +40,7 @@ const BoardPage = () => {
 
   const focusedCardList = useMemo(() => {
     return cardLists.filter((cardList) => cardList.id === openedCard.cardListId)[0] || {}
-  }, [openedCard])
+  }, [openedCard, cardLists])
 
   const navigate = useNavigate()
 
@@ -123,18 +123,18 @@ const BoardPage = () => {
         .then((data: { team: Team; board: Board; members: Member[]; cardLists: CardList[] }) => {
           setTeam({ ...team, name: data.team ? data.team.name : '' })
           setBoard({ id: data.board.id, name: data.board.name, personal: data.board.personal })
-
-          members.splice(0)
+          setMembers([])
 
           data.members.forEach((member) => {
-            members.push({
+            setMembers((old) => [...old, {
               id: member.userId,
               name: member.name,
               shortName: member.shortName
-            })
+            }]
+            )
           })
 
-          setCardLists((oldValue) => oldValue.splice(0))
+          setCardLists([])
 
           data.cardLists.sort((list1: CardList, list2: CardList) => {
             return list1.position - list2.position

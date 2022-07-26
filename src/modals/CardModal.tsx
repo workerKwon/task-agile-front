@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   FormEvent,
   KeyboardEvent,
-  useEffect,
+  useEffect, useLayoutEffect,
   useMemo,
   useState
 } from 'react'
@@ -144,7 +144,7 @@ const CardModal = (props: {
       return a2.createdDate - a1.createdDate
     })
     return cardActivities
-  }, [activities])
+  }, [activities, props.members])
 
   function changeCardTitle(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
