@@ -59,7 +59,6 @@ const BoardPage = () => {
 
     if (location.pathname.match('card') && fromRouteRef.current.match('board')) {
       loadCard(cardId).then(() => {
-        console.log(openedCard)
         openCardWindow()
       })
     }
@@ -167,11 +166,11 @@ const BoardPage = () => {
   }
 
   const loadCard = (cardId: string | undefined) => {
-    return new Promise<Card>((resolve) => {
+    return new Promise<Card>( (resolve) => {
       cardService
         .getCard(cardId)
         .then((card: Card) => {
-          setOpenedCard({ ...card })
+          setOpenedCard(card)
           resolve(card)
         })
         .catch((error) => {

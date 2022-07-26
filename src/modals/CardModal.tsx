@@ -80,10 +80,15 @@ const CardModal = (props: {
       setTimeout(() => {
         autosize.update($('.auto-size'))
       }, 0)
-      loadActivities()
-      loadAttachments()
     })
   }, [])
+
+  useEffect(() => {
+    if (cardId) {
+      loadActivities()
+      loadAttachments()
+    }
+  }, [cardId])
 
   function loadActivities() {
     cardService.getCardActivities(cardId).then((data) => {
