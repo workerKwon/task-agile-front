@@ -32,15 +32,7 @@ const BoardPage = () => {
   const [team, setTeam] = useState({ name: '' })
   const [members] = useState<{ id: number; name: string; shortName: string }[]>([])
   const [cardLists, setCardLists] = useState<AddedCardList[]>([])
-  const [openedCard, setOpenedCard] = useState<Card>({
-    boardId: 0,
-    cardListId: 0,
-    coverImage: '',
-    description: '',
-    id: 0,
-    position: 0,
-    title: ''
-  })
+  const [openedCard, setOpenedCard] = useState<any>({})
   const [addListForm, setAddListForm] = useState(false)
   const [cardsEvent, setCardsEvent] = useState<SortableEvent>()
   const { register: cardListRegister, handleSubmit: cardListHandleSubmit, reset: resetCardList } = useForm<{ name: string }>()
@@ -67,21 +59,14 @@ const BoardPage = () => {
 
     if (location.pathname.match('card') && fromRouteRef.current.match('board')) {
       loadCard(cardId).then(() => {
+        console.log(openedCard)
         openCardWindow()
       })
     }
 
     if (location.pathname.match('board') && fromRouteRef.current.match('card')) {
       closeCardWindow()
-      setOpenedCard({
-        boardId: 0,
-        cardListId: 0,
-        coverImage: '',
-        description: '',
-        id: 0,
-        position: 0,
-        title: ''
-      })
+      setOpenedCard({})
     }
 
     fromRouteRef.current = location.pathname
@@ -186,7 +171,7 @@ const BoardPage = () => {
       cardService
         .getCard(cardId)
         .then((card: Card) => {
-          setOpenedCard(card)
+          setOpenedCard({ ...card })
           resolve(card)
         })
         .catch((error) => {

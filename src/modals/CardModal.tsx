@@ -1,5 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react'
+import {
+  FormEvent,
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 import autosize from 'autosize'
 import cardService from '../services/card/card'
 import notify from '../utils/notify'
@@ -38,17 +44,15 @@ const CardModal = (props: {
   const [editingDescription, setEditingDescription] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [activities, setActivities] = useState<Activity[]>([])
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState(props.card.title)
   const [assignees] = useState([])
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState(props.card.description)
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploadingCount, setUploadingCount] = useState(0)
-  const [cardId, setCardId] = useState(0)
+  const [cardId, setCardId] = useState(props.card.id)
 
   const computedDescriptionHtml = useMemo(() => {
-    if (!description) {
-      return ''
-    }
+    if (!description) {return ''}
     return markdownConverter.makeHtml(description)
   }, [description])
 
@@ -79,11 +83,11 @@ const CardModal = (props: {
       loadActivities()
       loadAttachments()
     })
-  },[])
+  }, [])
 
   function loadActivities() {
-    cardService.getCardActivities(cardId).then(({ activities }) => {
-      setActivities(activities)
+    cardService.getCardActivities(cardId).then((data) => {
+      setActivities(data.activities)
     }).catch(error => {
       notify.error(error.message)
     })
@@ -135,7 +139,7 @@ const CardModal = (props: {
       return a2.createdDate - a1.createdDate
     })
     return cardActivities
-  }, [])
+  }, [activities])
 
   function changeCardTitle(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === 'Enter') {
@@ -172,10 +176,11 @@ const CardModal = (props: {
     setEditingDescription(false)
   }
 
-  function addComment() {
+  function addComment(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     cardService.addCardComment(cardId, newComment).then(commentActivity => {
       setNewComment('')
-      setActivities([...activities, commentActivity])
+      setActivities((prev) => [...prev, commentActivity])
     }).catch(error => {
       notify.error(error.message)
     })
@@ -338,7 +343,7 @@ const CardModal = (props: {
                 <div className="wrapper-body">
                   <form
                     className="comment-form"
-                    onSubmit={addComment}
+                    onSubmit={(e) => addComment(e)}
                   >
                     <div className="form-group">
                       <textarea
