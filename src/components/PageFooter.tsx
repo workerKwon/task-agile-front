@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import './stylesheet/pagefooter.scss'
+import './stylesheet/pagefooter.scoped.scss'
 
 function PageFooter() {
   const { t } = useTranslation()

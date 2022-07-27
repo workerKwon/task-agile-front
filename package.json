@@ -33,6 +33,7 @@
     "react-router-dom": "^6.3.0",
     "react-sortablejs": "^6.1.4",
     "recoil": "^0.7.3",
+    "rollup-plugin-react-scoped-css": "^0.6.1",
     "showdown": "^2.1.0",
     "sortablejs": "^1.15.0"
   },

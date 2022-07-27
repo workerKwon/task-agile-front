@@ -1,5 +1,5 @@
 import logo from '../images/logo.png'
-import './stylesheet/logo.scss'
+import './stylesheet/logo.scoped.scss'
 
 function Logo() {
   return (

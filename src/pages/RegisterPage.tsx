@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import registrationService from '../services/registration/registration'
-import './stylesheet/register.scss'
+import './stylesheet/register.scoped.scss'
 
 interface RegisterForm {
   username: string

@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as $ from 'jquery'
 import { personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
-import './stylesheet/home.scss'
+import './stylesheet/home.scoped.scss'
 
 function HomePage() {
   const { t } = useTranslation()

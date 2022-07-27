@@ -11,7 +11,7 @@ import cardService from '../services/card/card'
 import notify from '../utils/notify'
 import { formatDistance } from 'date-fns'
 import showdown from 'showdown'
-import './stylesheet/cardmodal.scss'
+import './stylesheet/cardmodal.scoped.scss'
 import $ from 'jquery'
 
 showdown.setOption('strikethrough', true)
@@ -205,6 +205,7 @@ const CardModal = (props: {
       className="modal"
       tabIndex={-1}
       role="dialog"
+      data-backdrop="static"
     >
       <div
         className="modal-dialog"
