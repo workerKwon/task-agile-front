@@ -13,6 +13,7 @@ import { formatDistance } from 'date-fns'
 import showdown from 'showdown'
 import './stylesheet/cardmodal.scoped.scss'
 import $ from 'jquery'
+import Uploader from '../components/Uploader'
 
 showdown.setOption('strikethrough', true)
 showdown.setOption('tables', true)
@@ -35,7 +36,7 @@ const CardModal = (props: {
   }
   board: { id: number; name: string; personal: boolean }
   members: { id: number; name: string; shortName: string }[]
-  onCoverImageChanged: () => void
+  onCoverImageChanged: ({ cardId, cardListId, coverImage } : { cardId: number, cardListId: number, coverImage: string}) => void
   onDescriptionChanged: ({ cardId, description }: { cardId: number, description: string }) => void
   onTitleChanged: ({ cardId, title }: { cardId: number, title: string }) => void
 }) => {
@@ -65,6 +66,10 @@ const CardModal = (props: {
       return curr.createdDate - prev.createdDate
     })
   }, [attachments])
+
+  const computedAttachmentUploadUrl = useMemo(() => {
+    return props.card.id ? '/api/cards/' + props.card.id + '/attachments' : ''
+  }, [props.card])
 
   useEffect(() => {
     setCardId(props.card.id)
@@ -189,6 +194,31 @@ const CardModal = (props: {
     }).catch(error => {
       notify.error(error.message)
     })
+  }
+
+  const onUploadingAttachment = () => {
+    setUploadingCount(prevState => prevState++)
+  }
+  const onUploadingProgressUpdated = (progress: string) => {
+    console.log('Uploading progress: ' + progress + '%')
+  }
+
+  const onAttachmentUploadFailed = (error: string) => {
+    setUploadingCount(prevState => prevState--)
+    notify.error(error)
+  }
+  const onAttachmentUploaded = (attachment: Attachment) => {
+    setUploadingCount(prevState => prevState--)
+    setAttachments(prevState => [...prevState, attachment])
+
+    if (!props.card.coverImage && attachment.previewUrl) {
+      props.onCoverImageChanged({
+        cardId: props.card.id,
+        cardListId: props.cardList.id,
+        coverImage: attachment.previewUrl
+      })
+      
+    }
   }
 
   function when(createdDate: any) {
@@ -402,16 +432,16 @@ const CardModal = (props: {
                 /> Members
               </div>
               <div className="control">
-                {/* <uploader */}
-                {/*   id="cardAttachment" */}
-                {/* url={attachmentUploadUrl} */}
-                {/* icon="paperclip" */}
-                {/* label="Attachment" */}
-                {/* uploading={onUploadingAttachment} */}
-                {/* progress={onUploadingProgressUpdated} */}
-                {/* failed={onAttachmentUploadFailed} */}
-                {/* uploaded={onAttachmentUploaded} */}
-                {/* /> */}
+                <Uploader
+                  id="cardAttachment"
+                  url={computedAttachmentUploadUrl}
+                  icon="paperclip"
+                  label="Attachment"
+                  uploading={onUploadingAttachment}
+                  progress={onUploadingProgressUpdated}
+                  failed={onAttachmentUploadFailed}
+                  uploaded={onAttachmentUploaded}
+                />
               </div>
               <h5 className="actions">
       Actions

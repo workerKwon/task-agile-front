@@ -579,7 +579,7 @@ const BoardPage = () => {
             cardList={focusedCardList}
             board={board}
             members={members}
-            onCoverImageChanged={() => updateCardCoverImage}
+            onCoverImageChanged={(data) => updateCardCoverImage(data)}
             onDescriptionChanged={(data) => updateCardDescription(data)}
             onTitleChanged={(data) => updateCardTitle(data)}
           />
