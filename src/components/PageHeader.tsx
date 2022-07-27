@@ -12,7 +12,6 @@ import notify from '../utils/notify'
 import { useEffect, Fragment } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scss'
-import PropTypes from 'prop-types'
 
 function PageHeader() {
   const { t } = useTranslation()
@@ -133,8 +132,9 @@ export default PageHeader
 
 function PersonalBoardsComponent({ personalBoards } : {personalBoards: Board[]}) {
 
+  const navigate = useNavigate()
+
   function openBoard(board: Board) {
-    const navigate = useNavigate()
     navigate(`/board/${board.id}`)
   }
 
@@ -184,8 +184,4 @@ function TeamComponent({ teamBoards } : {teamBoards: Team[]}) {
   )
 
   return <>{ teamComponent }</>
-}
-
-TeamComponent.propTypes = {
-  teamBoards: PropTypes.array
 }

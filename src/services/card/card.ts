@@ -41,8 +41,9 @@ export default {
     })
   },
   changeCardDescription (cardId: number, description: string) {
-    return new Promise<{cardId: number, description: string}>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       axios.put('/cards/' + cardId + '/description', { description }).then(({ data }) => {
+        console.log(data)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -84,5 +85,5 @@ export default {
         reject(errorParser.parse(error))
       })
     })
-  },
+  }
 }
