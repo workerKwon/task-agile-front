@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import teamService from '../services/team/team'
 import $ from 'jquery'
 import { useRecoilState } from 'recoil'
@@ -12,11 +12,13 @@ function CreateTeamModal() {
 
   const [teams, setTeams] = useRecoilState(teamsState)
 
+  useEffect(() => {
+    $('#createTeamModal').on('shown.bs.modal', () => {
+      $('#teamNameInput').trigger('focus')
+    })
+  }, [])
+
   const saveTeam = (data: { name: string}) => {
-    // this.$v.$touch()
-    //   if (this.$v.$invalid) {
-    //     return
-    //   }
     teamService
       .create(data)
       .then((createdTeam) => {
@@ -29,7 +31,6 @@ function CreateTeamModal() {
   }
 
   const close = () => {
-    // this.$v.$reset()
     resetField('name')
     setErrorMessage('')
     $('#createTeamModal').modal('hide')

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import boardService from '../services/board/board'
 import { useForm } from 'react-hook-form'
 import $ from 'jquery'
@@ -11,6 +11,12 @@ const CreateBoardModal = (props: { onCreated: (number: number) => void; teamId: 
   const [boardState, setBoardState] = useRecoilState(boardsState)
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<{name: string, description: string}>()
+
+  useEffect(() => {
+    $('#createBoardModal').on('shown.bs.modal', () => {
+      $('#boardNameInput').trigger('focus')
+    })
+  }, [])
 
   const saveBoard = (data: {name: string, description: string}) => {
     const board = {

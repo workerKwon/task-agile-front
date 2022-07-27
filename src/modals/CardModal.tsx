@@ -151,7 +151,7 @@ const CardModal = (props: {
       event.preventDefault()
       cardService.changeCardTitle(cardId, title).then(() => {
         props.onTitleChanged({ cardId, title })
-        $('#cardModal').focus()
+        $('#cardModal').trigger('focus')
       }).catch(error => {
         notify.error(error.message)
       })
@@ -163,7 +163,7 @@ const CardModal = (props: {
   }
 
   useEffect(() => {
-    $('#cardDescription').focus()
+    $('#cardDescription').trigger('focus')
     autosize.update($('.auto-size'))
   }, [editingDescription])
 
