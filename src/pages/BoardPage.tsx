@@ -14,7 +14,7 @@ import { ReactSortable, SortableEvent } from 'react-sortablejs'
 import cardService from '../services/card/card'
 import $ from 'jquery'
 import notify from '../utils/notify'
-import './stylesheet/board.scss'
+import './stylesheet/board.scoped.scss'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import boardService from '../services/board/board'
 import cardListService from '../services/cardList/card-lists'
@@ -358,7 +358,7 @@ const BoardPage = () => {
   }
 
   const onMemberAdded = (member: { id: number; name: string; shortName: string }) => {
-    members.push(member)
+    setMembers(oldValue => [...oldValue, member])
   }
 
   const dismissActiveForms = (event: MouseEvent) => {
@@ -455,123 +455,125 @@ const BoardPage = () => {
                   </div>
                 </div>
                 <div className='board-body'>
-                  <ReactSortable
-                    list={cardLists}
-                    setList={setCardLists}
-                    className='list-container'
-                    handle='.list-header'
-                    animation={0}
-                    scrollSensitivity={100}
-                    touchStartThreshold={20}
-                    onEnd={() => {
-                      isCardListsSortingRef.current = true
-                    }}
-                  >
-                    {cardLists.map((cardList, cardListIndex) => (
-                      <div key={cardList.id} className='list-wrapper'>
-                        <div className='list'>
-                          <div className='list-header'>{cardList.name}</div>
-                          <ReactSortable
-                            list={cardList.cards}
-                            setList={(newValue) => {
-                              setCardLists((sourceList) => {
-                                const tempList = [...sourceList]
-                                tempList[cardListIndex].cards = newValue
-                                return tempList
-                              })
-                            }}
-                            className='cards'
-                            draggable='.card-item'
-                            group='cards'
-                            ghostClass='ghost-card'
-                            animation={0}
-                            scrollSensitivity={100}
-                            touchStartThreshold={20}
-                            id={`${cardList.id}`}
-                            onEnd={(event) => {
-                              isCardsSortingRef.current = true
-                              setCardsEvent(event)
-                            }}
-                          >
-                            <>
-                              <CardComponent cardList={cardList} />
-                              {cardList.cardForm.open && (
-                                <div className='add-card-form-wrapper'>
-                                  <form
-                                    className='add-card-form'
-                                    onSubmit={cardHandleSubmit(({ title }) => onSubmit(title, cardListIndex))}
-                                  >
-                                    <div className='form-group'>
-                                      <textarea
-                                        id={'cardTitle' + cardList.id}
-                                        {...cardRegister('title', { required: true })}
-                                        className='form-control'
-                                        placeholder='Type card title here'
-                                        onKeyDown={(e) => onKeyDownEnter(e, cardListIndex)}
-                                      />
-                                    </div>
-                                    <button type='submit' className='btn btn-sm btn-primary'>
+                  <div className='list-container'>
+                    <ReactSortable
+                      list={cardLists}
+                      setList={setCardLists}
+                      handle='.list-header'
+                      animation={0}
+                      scrollSensitivity={100}
+                      touchStartThreshold={20}
+                      onEnd={() => {
+                        isCardListsSortingRef.current = true
+                      }}
+                    >
+                      {cardLists.map((cardList, cardListIndex) => (
+                        <div key={cardList.id} className='list-wrapper'>
+                          <div className='list'>
+                            <div className='list-header'>{cardList.name}</div>
+                            <div className='cards'>
+                              <ReactSortable
+                                list={cardList.cards}
+                                setList={(newValue) => {
+                                  setCardLists((sourceList) => {
+                                    const tempList = [...sourceList]
+                                    tempList[cardListIndex].cards = newValue
+                                    return tempList
+                                  })
+                                }}
+                                draggable='.card-item'
+                                group='cards'
+                                ghostClass='ghost-card'
+                                animation={0}
+                                scrollSensitivity={100}
+                                touchStartThreshold={20}
+                                id={`${cardList.id}`}
+                                onEnd={(event) => {
+                                  isCardsSortingRef.current = true
+                                  setCardsEvent(event)
+                                }}
+                              >
+                                <>
+                                  <CardComponent cardList={cardList} />
+                                  {cardList.cardForm.open && (
+                                    <div className='add-card-form-wrapper'>
+                                      <form
+                                        className='add-card-form'
+                                        onSubmit={cardHandleSubmit(({ title }) => onSubmit(title, cardListIndex))}
+                                      >
+                                        <div className='form-group'>
+                                          <textarea
+                                            id={'cardTitle' + cardList.id}
+                                            {...cardRegister('title', { required: true })}
+                                            className='form-control'
+                                            placeholder='Type card title here'
+                                            onKeyDown={(e) => onKeyDownEnter(e, cardListIndex)}
+                                          />
+                                        </div>
+                                        <button type='submit' className='btn btn-sm btn-primary'>
                                     Add
-                                    </button>
-                                    <button
-                                      type='button'
-                                      className='btn btn-sm btn-link btn-cancel'
-                                      onClick={() => closeAddCardForm(cardListIndex)}
-                                    >
+                                        </button>
+                                        <button
+                                          type='button'
+                                          className='btn btn-sm btn-link btn-cancel'
+                                          onClick={() => closeAddCardForm(cardListIndex)}
+                                        >
                                     Cancel
-                                    </button>
-                                  </form>
-                                </div>
-                              )}
-                            </>
-                          </ReactSortable>
-                          {!cardList.cardForm.open && (
-                            <div
-                              className='add-card-button'
-                              onClick={() => openAddCardForm(cardList, cardListIndex)}
-                            >
-                              + Add a card
+                                        </button>
+                                      </form>
+                                    </div>
+                                  )}
+                                </>
+                              </ReactSortable>
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    <div className='list-wrapper add-list'>
-                      {!addListForm && (
-                        <div className='add-list-button' onClick={openAddListForm}>
-                          + Add a list
-                        </div>
-                      )}
-                      {addListForm === true && (
-                        <form className='add-list-form' onSubmit={cardListHandleSubmit(addCardList)}>
-                          <div className='form-group'>
-                            <input
-                              id='cardListName'
-                              {...cardListRegister('name', { required: true })}
-                              type='text'
-                              className='form-control'
-                              placeholder='Type list name here'
-                            />
+                            {!cardList.cardForm.open && (
+                              <div
+                                className='add-card-button'
+                                onClick={() => openAddCardForm(cardList, cardListIndex)}
+                              >
+                              + Add a card
+                              </div>
+                            )}
                           </div>
-                          <button type='submit' className='btn btn-sm btn-primary'>
+                        </div>
+                      ))}
+                      <div className='list-wrapper add-list'>
+                        {!addListForm && (
+                          <div className='add-list-button' onClick={openAddListForm}>
+                          + Add a list
+                          </div>
+                        )}
+                        {addListForm === true && (
+                          <form className='add-list-form' onSubmit={cardListHandleSubmit(addCardList)}>
+                            <div className='form-group'>
+                              <input
+                                id='cardListName'
+                                {...cardListRegister('name', { required: true })}
+                                type='text'
+                                className='form-control'
+                                placeholder='Type list name here'
+                              />
+                            </div>
+                            <button type='submit' className='btn btn-sm btn-primary'>
                             Add List
-                          </button>
-                          <button
-                            type='button'
-                            className='btn btn-sm btn-link btn-cancel'
-                            onClick={closeAddListForm}
-                          >
+                            </button>
+                            <button
+                              type='button'
+                              className='btn btn-sm btn-link btn-cancel'
+                              onClick={closeAddListForm}
+                            >
                             Cancel
-                          </button>
-                        </form>
-                      )}
-                    </div>
-                  </ReactSortable>
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </ReactSortable>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <AddMemberModal boardId={board.id} onAdded={() => onMemberAdded} />
+          <AddMemberModal boardId={board.id} onAdded={(member) => onMemberAdded(member)} />
           <CardModal
             card={openedCard}
             cardList={focusedCardList}

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import errorParser from '../../utils/error-parser'
 
 type SavedBoard = {
   teamId: number
@@ -31,6 +32,16 @@ export default {
         resolve(data)
       }).catch((error) => {
         reject(error)
+      })
+    })
+  },
+  addMember (boardId: number, usernameOrEmailAddress: string) {
+    return new Promise((resolve, reject) => {
+      axios.post('/boards/' + boardId + '/members', { usernameOrEmailAddress }).then(({ data }) => {
+        console.log(data)
+        resolve(data)
+      }).catch((error) => {
+        reject(errorParser.parse(error))
       })
     })
   }
