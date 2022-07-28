@@ -5,15 +5,15 @@ export default class EventBus {
     this.bus = {}
   }
   
-  off(type: string) {
+  $off(type: string) {
     delete this.bus[type]
   }
   
-  on(type: string, callback: () => void) {
+  $on(type: string, callback: any) {
     this.bus[type] = callback
   }
   
-  emit(type: string) {
-    this.bus[type]()
+  $emit(type: string, data: any) {
+    this.bus[type](data)
   }
 }

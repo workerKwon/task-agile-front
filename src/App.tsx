@@ -9,12 +9,16 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min'
 import './App.scss'
 import globalBus from './event-bus'
+import realTimeClient from './real-time-client'
 
 library.add(fas)
 
 const App = () => {
   const navigate = useNavigate()
-  globalBus.on('user.unauthenticated', () => {
+  globalBus.$on('myDataFetched', (myData: { settings: { realTimeServerUrl: string }; user: { token: string } }) => {
+    realTimeClient.init(myData.settings.realTimeServerUrl, myData.user.token)
+  })
+  globalBus.$on('user.unauthenticated', () => {
     navigate('/login')
   })
 

@@ -16,7 +16,7 @@ export default {
           return new Error(i18n.t('error.request.bad'))
         }
       } else if (status === 401) {
-        globalBus.emit('user.unauthenticated')
+        globalBus.$emit('user.unauthenticated', null)
         return new Error('unauthenticated error')
       } else if (status === 403) {
         return new Error(i18n.t('error.request.forbidden'))

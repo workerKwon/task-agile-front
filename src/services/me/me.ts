@@ -1,5 +1,6 @@
 import errorParser from '../../utils/error-parser'
 import axios from 'axios'
+import globalBus from '../../event-bus'
 
 type MyData = {
   user: { name: string, authenticated: boolean},
@@ -24,6 +25,7 @@ export default {
       axios.get('/me')
         .then(({ data }) => {
           resolve(data)
+          globalBus.$emit('myDataFetched', data)
         })
         .catch((error) => {
           reject(errorParser.parse(error))
