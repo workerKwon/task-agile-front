@@ -8,13 +8,13 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min'
 import './App.scss'
-import bus from './event-bus'
+import globalBus from './event-bus'
 
 library.add(fas)
 
 const App = () => {
   const navigate = useNavigate()
-  bus.on('user.unauthenticated', () => {
+  globalBus.on('user.unauthenticated', () => {
     navigate('/login')
   })
 

@@ -11,6 +11,9 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true
       },
+      '^/rt/*': {
+        target: 'http://localhost:8080'
+      },
       '^/local-file/': {
         target: 'http://localhost:8080'
       }
