@@ -1,5 +1,4 @@
 export {}
-
 declare global {
   interface Board {
     name: string
