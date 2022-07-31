@@ -12,10 +12,27 @@ export default defineConfig({
         changeOrigin: true
       },
       '^/rt/*': {
-        target: 'http://localhost:8080'
+        target: 'http://localhost:8080',
+        ws: true
       },
       '^/local-file/': {
         target: 'http://localhost:8080'
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      eventsource:
+        './node_modules/sockjs-client/lib/transport/browser/eventsource.js',
+      events: './node_modules/sockjs-client/lib/event/emitter.js',
+      crypto: './node_modules/sockjs-client/lib/utils/browser-crypto.js'
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis'
       }
     }
   }

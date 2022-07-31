@@ -9,6 +9,7 @@ import { userState, boardsState, teamsState } from '../recoil/state'
 
 import meService from '../services/me/me'
 import notify from '../utils/notify'
+import realTimeClient from '../real-time-client'
 import { useEffect, Fragment } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scoped.scss'
@@ -44,8 +45,8 @@ function PageHeader() {
   }
 
   function signOut() {
-    // this.$rt.logout()
-    //
+    realTimeClient.logout()
+
     meService.signOut()
       .then(() => {
         resetBoards()

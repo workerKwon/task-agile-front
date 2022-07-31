@@ -47,7 +47,7 @@ class RealTimeClient {
 
   connect () {
     console.log('[RealTimeClient] Connecting to ' + this.serverUrl)
-    this.socket = new SockJS(this.serverUrl + '?token=' + this.token)
+    this.socket = new SockJS(this.serverUrl + '?token=' + this.token, null, { transports : ['websocket'] })
     this.socket.onopen = () => {
       this.authenticated = true
       this._onConnected()
@@ -56,18 +56,16 @@ class RealTimeClient {
       this._onMessageReceived(event)
     }
     this.socket.onerror = (error: any) => {
-      console.log(22)
       this._onSocketError(error)
     }
     this.socket.onclose = (event: any) => {
-      console.log(11)
       this._onClosed(event)
     }
   }
 
   _onConnected () {
     this.triedAttempts = 0
-    globalBus.$emit('RealTimeClient.connected', null)
+    // globalBus.$emit('RealTimeClient.connected', null)
     console.log('[RealTimeClient] Connected')
 
     this._processQueues()
