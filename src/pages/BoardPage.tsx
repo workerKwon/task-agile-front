@@ -19,6 +19,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import boardService from '../services/board/board'
 import cardListService from '../services/cardList/card-lists'
 import { useForm } from 'react-hook-form'
+import realTimeClient from '../real-time-client'
 
 interface AddedCardList {
   id: number
@@ -155,8 +156,8 @@ const BoardPage = () => {
               }
             }])
           })
-          // TODO
-          //  this.subscribeToRealTimeUpdate(data.board.id)
+
+          subscribeToRealTimeUpdate(data.board.id)
           resolve()
         })
         .catch((error: { message: string }) => {
@@ -423,6 +424,45 @@ const BoardPage = () => {
       })
       return temp
     })
+  }
+
+  function subscribeToRealTimeUpdate (boardId: number) {
+    realTimeClient.subscribe('/board/' + boardId, (data) => onRealTimeUpdated(data))
+  }
+
+  function onRealTimeUpdated (update: { type: string; card: Card; cardList: CardList }) {
+    console.log(cardLists)
+    console.log('[BoardPage] Real time update received', update)
+    if (update.type === 'cardAdded') {
+      onCardAdded(update.card)
+    }
+    if (update.type === 'cardListAdded') {
+      onCardListAdded(update.cardList)
+    }
+  }
+
+  function onCardAdded (card: Card) {
+    const cardListIndex = cardLists.findIndex(cardList => cardList.id === card.cardListId)
+    if (cardListIndex === -1) {
+      console.warn('No card list found by id ' + card.cardListId)
+      return
+    }
+    appendCardToList(cardListIndex, card)
+  }
+
+  function onCardListAdded (cardList: CardList) {
+    const existingIndex = cardLists.findIndex(existingCardList => existingCardList.id === cardList.id)
+    if (existingIndex === -1) {
+      setCardLists(prevState => [...prevState, {
+        id: cardList.id,
+        name: cardList.name,
+        cards: [],
+        cardForm: {
+          open: false,
+          title: ''
+        }
+      }])
+    }
   }
 
   return (

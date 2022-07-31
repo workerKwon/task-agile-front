@@ -1,5 +1,5 @@
 import SockJS from 'sockjs-client'
-import globalBus from './event-bus'
+// import globalBus from './event-bus'
 import EventBus from './eventbus/EventBus'
 
 class RealTimeClient {
@@ -93,7 +93,7 @@ class RealTimeClient {
     })
   }
 
-  subscribe (channel: string, handler: any) {
+  subscribe (channel: string, handler: (params: any) => void) {
     if (!this._isConnected()) {
       this._addToSubscribeQueue(channel, handler)
       return
@@ -131,7 +131,7 @@ class RealTimeClient {
     console.log('[RealTimeClient] Unsubscribed from channel ' + channel)
   }
 
-  _removeFromQueue (queue: { [x: string]: any }, channel: string, handler: any) {
+  _removeFromQueue (queue: { [x: string]: any }, channel: string, handler: (params: any) => void) {
     const handlers = queue[channel]
     if (handlers) {
       const index = handlers.indexOf(handler)
@@ -145,7 +145,7 @@ class RealTimeClient {
     return this.socket && this.socket.readyState === SockJS.OPEN
   }
 
-  _addToSubscribeQueue (channel: string, handler: any) {
+  _addToSubscribeQueue (channel: string, handler: (params: any) => void) {
     console.log('[RealTimeClient] Adding channel subscribe to queue. Channel: ' + channel)
     this._removeFromQueue(this.unsubscribeQueue, channel, handler)
     const handlers = this.subscribeQueue[channel]
@@ -181,19 +181,19 @@ class RealTimeClient {
     console.log('[RealTimeClient] Received close event', event)
     if (this.loggedOut) {
       console.log('[RealTimeClient] Logged out')
-      globalBus.$emit('RealTimeClient.loggedOut', null)
+      // globalBus.$emit('RealTimeClient.loggedOut', null)
     } else {
       if (this.triedAttempts > 30) {
         console.log('[RealTimeClient] Logged out')
         return
       }
       console.log('[RealTimeClient] Disconnected')
-      globalBus.$emit('RealTimeClient.disconnected', null)
+      // globalBus.$emit('RealTimeClient.disconnected', null)
 
       setTimeout(() => {
         this.triedAttempts++
         console.log('[RealTimeClient] Reconnecting')
-        globalBus.$emit('RealTimeClient.reconnecting', null)
+        // globalBus.$emit('RealTimeClient.reconnecting', null)
         this.connect()
       }, 1000)
     }
