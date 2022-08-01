@@ -117,6 +117,8 @@ const BoardPage = () => {
     }
   }
 
+  const realTimeClientRef = useRef(false)
+
   const loadBoard = (boardId: number | string | undefined) => {
     return new Promise<void>((resolve) => {
       boardService
@@ -157,7 +159,7 @@ const BoardPage = () => {
             }])
           })
 
-          subscribeToRealTimeUpdate(data.board.id)
+          realTimeClientRef.current = true
           resolve()
         })
         .catch((error: { message: string }) => {
@@ -165,6 +167,13 @@ const BoardPage = () => {
         })
     })
   }
+
+  useEffect(() => {
+    if(realTimeClientRef.current) {
+      subscribeToRealTimeUpdate(board.id)
+      realTimeClientRef.current = false
+    }
+  }, [cardLists])
 
   const loadCard = (cardId: string | undefined) => {
     return new Promise<Card>( (resolve) => {
@@ -431,7 +440,6 @@ const BoardPage = () => {
   }
 
   function onRealTimeUpdated (update: { type: string; card: Card; cardList: CardList }) {
-    console.log(cardLists)
     console.log('[BoardPage] Real time update received', update)
     if (update.type === 'cardAdded') {
       onCardAdded(update.card)
