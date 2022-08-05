@@ -49,11 +49,9 @@ const BoardPage = () => {
   const { cardId, boardId } = useParams()
 
   const fromRouteRef = useRef('')
-  // const fromBoardIdRef = useRef(boardId)
 
   useEffect(() => {
     if (location.pathname.match('board') && fromRouteRef.current.match('board')) {
-      // unsubscribeFromRealTimeUpdate(fromBoardIdRef.current)
       loadBoard(boardId)
     }
 

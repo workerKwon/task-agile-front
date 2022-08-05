@@ -111,7 +111,7 @@ class RealTimeClient {
     console.log('[RealTimeClient] Subscribed to channel ' + channel)
   }
 
-  unsubscribe (channel: string, handler: any) {
+  unsubscribe (channel: string, handler: (params: any) => void) {
     if (this.loggedOut) {
       return
     }

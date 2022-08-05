@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import BoardPage from './pages/BoardPage'
@@ -10,12 +10,14 @@ import 'bootstrap/dist/js/bootstrap.min'
 import './App.scss'
 import globalBus from './event-bus'
 import realTimeClient from './real-time-client'
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 library.add(fas)
 
 const App = () => {
   const navigate = useNavigate()
+
+  const location = useLocation()
 
   useLayoutEffect(() => {
     globalBus.$on('myDataFetched', (myData: { settings: { realTimeServerUrl: string }; user: { token: string } }) => {
@@ -25,6 +27,35 @@ const App = () => {
       navigate('/login')
     })
   }, [])
+
+  const fromRouteRef = useRef('')
+  const fromBoardIdRef = useRef<string>()
+  const { boardId } = useParams()
+
+  useEffect(() => {
+    if (location.pathname.match('board') && fromRouteRef.current.match('board')) {
+      realTimeClient.unsubscribe('/board/' + fromBoardIdRef.current, (data) => onRealTimeUpdated(data))
+    }
+
+    if (!location.pathname.match('card')) {
+      realTimeClient.unsubscribe('/board/' + fromBoardIdRef.current, (data) => onRealTimeUpdated(data))
+    }
+
+    fromRouteRef.current = location.pathname
+    if (boardId) {
+      fromBoardIdRef.current = boardId
+    }
+  }, [location])
+
+  function onRealTimeUpdated (update: { type: string; card: Card; cardList: CardList }) {
+    console.log('[BoardPage] Real time update received', update)
+    if (update.type === 'cardAdded') {
+      // onCardAdded(update.card)
+    }
+    if (update.type === 'cardListAdded') {
+      // onCardListAdded(update.cardList)
+    }
+  }
 
   return (
     <Routes>
