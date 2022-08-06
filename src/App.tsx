@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import BoardPage from './pages/BoardPage'
@@ -30,37 +30,32 @@ const App = () => {
 
   const fromRouteRef = useRef('')
   const fromBoardIdRef = useRef<string>()
-  const { boardId } = useParams()
 
   useEffect(() => {
-    if (location.pathname.match('board') && fromRouteRef.current.match('board')) {
-      realTimeClient.unsubscribe('/board/' + fromBoardIdRef.current, (data) => onRealTimeUpdated(data))
-    }
+    if (fromBoardIdRef.current) {
+      if (location.pathname.match('board') && fromRouteRef.current.match('board')) {
+        realTimeClient.unsubscribe('/board/' + fromBoardIdRef.current, (data) => onRealTimeUpdated(data))
+      }
 
-    if (!location.pathname.match('card')) {
-      realTimeClient.unsubscribe('/board/' + fromBoardIdRef.current, (data) => onRealTimeUpdated(data))
+      if (!location.pathname.match('card')) {
+        realTimeClient.unsubscribe('/board/' + fromBoardIdRef.current, (data) => onRealTimeUpdated(data))
+      }
     }
 
     fromRouteRef.current = location.pathname
-    if (boardId) {
-      fromBoardIdRef.current = boardId
+    if (location.pathname.match('board')) {
+      fromBoardIdRef.current = location.pathname.split('/')[2]
     }
   }, [location])
 
   function onRealTimeUpdated (update: { type: string; card: Card; cardList: CardList }) {
     console.log('[BoardPage] Real time update received', update)
-    if (update.type === 'cardAdded') {
-      // onCardAdded(update.card)
-    }
-    if (update.type === 'cardListAdded') {
-      // onCardListAdded(update.cardList)
-    }
   }
 
   return (
     <Routes>
       <Route path='/' element={<HomePage />} />
-      <Route path='/login' element={<LoginPage />} />
+      <Route path='/login' element={<LoginPage />}/>
       <Route path='/register' element={<RegisterPage />} />
       <Route path='/board/:boardId' element={<BoardPage />} />
       <Route path='/card/:cardId/:cardTitle' element={<BoardPage />} />
