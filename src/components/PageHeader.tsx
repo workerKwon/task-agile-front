@@ -10,9 +10,10 @@ import { userState, boardsState, teamsState } from '../recoil/state'
 import meService from '../services/me/me'
 import notify from '../utils/notify'
 import realTimeClient from '../real-time-client'
-import { useEffect, Fragment } from 'react'
+import { useEffect, Fragment, ChangeEvent } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scoped.scss'
+import { debounce } from 'lodash'
 
 function PageHeader() {
   const { t } = useTranslation()
@@ -59,6 +60,11 @@ function PageHeader() {
       })
   }
 
+  const searchItems = debounce((e: ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value)
+  }, 1000
+  )
+
   return (
     <>
       <div className='page-header d-flex align-content-center'>
@@ -99,6 +105,7 @@ function PageHeader() {
               type='text'
               placeholder={t('header.search')}
               className='form-control form-control-sm'
+              onChange={(event) => searchItems(event)}
             />
           </div>
         </div>
