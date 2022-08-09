@@ -10,7 +10,7 @@ import { userState, boardsState, teamsState } from '../recoil/state'
 import meService from '../services/me/me'
 import notify from '../utils/notify'
 import realTimeClient from '../real-time-client'
-import { useEffect, Fragment, ChangeEvent } from 'react'
+import { useEffect, Fragment, ChangeEvent, useState } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scoped.scss'
 import { debounce } from 'lodash'
@@ -25,6 +25,7 @@ function PageHeader() {
   const [user, setUser] = useRecoilState(userState)
   const setTeams = useRecoilState(teamsState)[1]
   const setBoards = useRecoilState(boardsState)[1]
+  const [searchedData, setSearchedData] = useState({ boards: [], cards: [] })
 
   const resetBoards = useResetRecoilState(boardsState)
   const resetTeams = useResetRecoilState(teamsState)
@@ -61,9 +62,15 @@ function PageHeader() {
   }
 
   const searchItems = debounce((e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value)
-  }, 1000
-  )
+    meService.getSearchedItem(e.target.value)
+      .then((data) => {
+        setSearchedData(data)
+        console.log(data)
+      })
+      .catch((error) => {
+        notify.error(error.message)
+      })
+  }, 500)
 
   return (
     <>
@@ -99,14 +106,24 @@ function PageHeader() {
           </div>
         </div>
         <div className='search-box flex-fill'>
-          <div className='search-wrapper'>
+          <div className='search-wrapper dropdown'>
             <FontAwesomeIcon icon='search' className='search-icon' />
             <input
               type='text'
               placeholder={t('header.search')}
-              className='form-control form-control-sm'
+              className='form-control form-control-sm dropdown-toggle'
+              data-toggle='dropdown'
+              id="dropdownMenuButton"
+              aria-haspopup="true" aria-expanded="false"
               onChange={(event) => searchItems(event)}
             />
+            {searchedData.boards.length > 0 && 
+            <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a className="dropdown-item" href="#">Action</a>
+              <a className="dropdown-item" href="#">Another action</a>
+              <a className="dropdown-item" href="#">Something else here</a>
+            </div>
+            }
           </div>
         </div>
         <div className='profile-menu-toggle'>

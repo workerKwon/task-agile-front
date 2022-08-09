@@ -31,5 +31,16 @@ export default {
           reject(errorParser.parse(error))
         })
     })
+  },
+  getSearchedItem(text: string) {
+    return new Promise<{boards: [], cards: []}>((resolve, reject) => {
+      axios.get('/search/' + text)
+        .then(({ data }) => {
+          resolve(data)
+        })
+        .catch((error) => {
+          reject(errorParser.parse(error))
+        })
+    })
   }
 }
