@@ -10,7 +10,7 @@ import { userState, boardsState, teamsState } from '../recoil/state'
 import meService from '../services/me/me'
 import notify from '../utils/notify'
 import realTimeClient from '../real-time-client'
-import { useEffect, Fragment, ChangeEvent, useState } from 'react'
+import { useEffect, Fragment, ChangeEvent, useState, MouseEvent, Key } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scoped.scss'
 import { debounce } from 'lodash'
@@ -25,7 +25,7 @@ function PageHeader() {
   const [user, setUser] = useRecoilState(userState)
   const setTeams = useRecoilState(teamsState)[1]
   const setBoards = useRecoilState(boardsState)[1]
-  const [searchedData, setSearchedData] = useState({ boards: [], cards: [] })
+  const [searchedData, setSearchedData] = useState<any>({ boards:[], cards: [] })
 
   const resetBoards = useResetRecoilState(boardsState)
   const resetTeams = useResetRecoilState(teamsState)
@@ -62,6 +62,8 @@ function PageHeader() {
   }
 
   const searchItems = debounce((e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.value) return
+
     meService.getSearchedItem(e.target.value)
       .then((data) => {
         setSearchedData(data)
@@ -71,6 +73,29 @@ function PageHeader() {
         notify.error(error.message)
       })
   }, 500)
+
+  const toggleDropdownItems = (e: MouseEvent) => {
+    e.preventDefault()
+    const toggle = document.getElementById('dropdownItems')
+    if(toggle) {
+      toggle.classList.toggle('show')
+    }
+  }
+
+  const removeDropdownItems = () => {
+    const toggle = document.getElementById('dropdownItems')
+    if(toggle) {
+      toggle.classList.remove('show')
+    }
+  }
+
+  const goToBoard = (boardId: number) => {
+    console.log(boardId)
+  }
+
+  const goToCard = (cardId: number) => {
+    console.log(cardId)
+  }
 
   return (
     <>
@@ -106,24 +131,32 @@ function PageHeader() {
           </div>
         </div>
         <div className='search-box flex-fill'>
-          <div className='search-wrapper dropdown'>
+          <div className='search-wrapper'>
             <FontAwesomeIcon icon='search' className='search-icon' />
             <input
               type='text'
               placeholder={t('header.search')}
-              className='form-control form-control-sm dropdown-toggle'
-              data-toggle='dropdown'
-              id="dropdownMenuButton"
-              aria-haspopup="true" aria-expanded="false"
+              className='form-control form-control-sm'
               onChange={(event) => searchItems(event)}
+              onClick={(e) => toggleDropdownItems(e)}
+              onBlur={() => removeDropdownItems()}
             />
-            {searchedData.boards.length > 0 && 
-            <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a className="dropdown-item" href="#">Action</a>
-              <a className="dropdown-item" href="#">Another action</a>
-              <a className="dropdown-item" href="#">Something else here</a>
+            <div className="dropdown-items" id="dropdownItems">
+              <>
+                <div className="dropdown-title">boards</div>
+                {
+                  searchedData.boards.map((board: any) => (
+                    <a key={board.id} className="dropdown-item" onClick={() => goToBoard(board.id)}>{board.name}</a>
+                  ))
+                }
+                <div className="dropdown-title">cards</div>
+                {
+                  searchedData.cards.map((card: any) => (
+                    <a key={card.id} className="dropdown-item" onClick={() => goToCard(card.id)}>{card.title}</a>
+                  ))
+                }
+              </>
             </div>
-            }
           </div>
         </div>
         <div className='profile-menu-toggle'>

@@ -34,6 +34,26 @@
       width: 300px;
       margin: 0 auto;
       position: relative;
+
+      .dropdown-items {
+        display: none;
+        width: 100%;
+        position: absolute;
+        background-color: white;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 0.25rem;
+
+        .dropdown-title {
+          padding: 0.25rem 1.5rem;
+          background-color: cornsilk;
+        }
+      }
+
+      .show {
+        display: block;
+      }
     }
     .search-icon {
       position: absolute;
