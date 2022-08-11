@@ -44,6 +44,7 @@
         overflow-y: auto;
         border: 1px solid #eee;
         border-radius: 0.25rem;
+        z-index: 1000;
 
         .dropdown-title {
           padding: 0.25rem 1.5rem;

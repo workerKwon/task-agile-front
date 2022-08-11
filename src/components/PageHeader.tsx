@@ -10,7 +10,7 @@ import { userState, boardsState, teamsState } from '../recoil/state'
 import meService from '../services/me/me'
 import notify from '../utils/notify'
 import realTimeClient from '../real-time-client'
-import { useEffect, Fragment, ChangeEvent, useState, MouseEvent, Key } from 'react'
+import { useEffect, Fragment, ChangeEvent, useState, MouseEvent } from 'react'
 import { hasBoardsSelector, personalBoardsSelector, teamBoardsSelector } from '../recoil/selector'
 import './stylesheet/pageheader.scoped.scss'
 import { debounce } from 'lodash'
@@ -62,7 +62,10 @@ function PageHeader() {
   }
 
   const searchItems = debounce((e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.value) return
+    if (!e.target.value) {
+      setSearchedData({ boards: [], cards: [] })
+      return
+    }
 
     meService.getSearchedItem(e.target.value)
       .then((data) => {
@@ -90,11 +93,13 @@ function PageHeader() {
   }
 
   const goToBoard = (boardId: number) => {
-    console.log(boardId)
+    navigate(`/board/${boardId}`)
+    removeDropdownItems()
   }
 
-  const goToCard = (cardId: number) => {
-    console.log(cardId)
+  const goToCard = (cardId: number, cardTitle: string) => {
+    navigate(`/card/${cardId}/${cardTitle}`)
+    removeDropdownItems()
   }
 
   return (
@@ -139,7 +144,7 @@ function PageHeader() {
               className='form-control form-control-sm'
               onChange={(event) => searchItems(event)}
               onClick={(e) => toggleDropdownItems(e)}
-              onBlur={() => removeDropdownItems()}
+              // onBlur={() => removeDropdownItems()}
             />
             <div className="dropdown-items" id="dropdownItems">
               <>
@@ -152,7 +157,7 @@ function PageHeader() {
                 <div className="dropdown-title">cards</div>
                 {
                   searchedData.cards.map((card: any) => (
-                    <a key={card.id} className="dropdown-item" onClick={() => goToCard(card.id)}>{card.title}</a>
+                    <a key={card.id} className="dropdown-item" onClick={() => goToCard(card.id, card.title)}>{card.title}</a>
                   ))
                 }
               </>
